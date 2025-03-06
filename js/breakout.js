@@ -2,7 +2,7 @@ const myCanvas = document.getElementById("myCanvas");
 
 const blockColor = "red";
 const blockWidth = 100;
-const blockHeight = 25;
+const blockHeight = 50;
 
 const totalNumberOfBlocks = 48;
 const boardWidth = 100;
@@ -10,13 +10,15 @@ const boardHeigh = 10;
 const boardInitialX = myCanvas.width / 2 - boardWidth / 2;
 const boardInitialY = myCanvas.height - boardHeigh - 100;
 
-const energyMax = 50;
+const energyMax = 20;
 const step = 10;
 
 const ballRadius = 20;
 const ballSpeed = 2;
 const ballinitialX = myCanvas.width / 2;
 const ballinitialY = myCanvas.height / 2;
+
+let score = 0;
 
 // Block class for creating blocks
 class Block {
@@ -26,7 +28,7 @@ class Block {
     this.color = color;
     this.ctx = canvas.getContext("2d");
   }
-  // Draw the block
+
   draw() {
     this.ctx.beginPath();
     this.ctx.rect(this.x, this.y, blockWidth, blockHeight);
@@ -49,6 +51,7 @@ class Board {
     this.y = boardInitialY;
     this.energy = 50;
   }
+
   draw() {
     this.ctx.beginPath();
     this.ctx.rect(this.x, this.y, boardWidth, boardHeigh);
@@ -67,12 +70,20 @@ class Board {
     this.ctx.fill();
     this.ctx.closePath();
   }
+
+  reset() {
+    this.energy = 50;
+    this.x = boardInitialX;
+    this.y = boardInitialY;
+  }
+
   moveLeft(step) {
     this.x -= step;
     if (this.x < 0) {
       this.x = 0;
     }
   }
+
   moveright(step) {
     this.x += step;
     if (this.x > this.width - boardWidth) {
@@ -90,9 +101,10 @@ class Ball {
     this.radius = ballRadius;
     this.x = ballinitialX;
     this.y = ballinitialY;
-    this.speed = ballSpeed;
-    this.direction = (Math.random() + 0.5) * Math.PI;
+    this.speed = ballSpeed * (score + 1);
+    this.direction = Math.random() * Math.PI;
   }
+
   draw() {
     this.ctx.beginPath();
     this.ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
@@ -100,9 +112,29 @@ class Ball {
     this.ctx.fill();
     this.ctx.closePath();
   }
+
+  reset() {
+    this.x = ballinitialX;
+    this.y = ballinitialY;
+    this.direction = Math.random() * Math.PI;
+  }
+
   move() {
     this.x += this.speed * Math.cos(this.direction);
     this.y += this.speed * Math.sin(this.direction);
+  }
+
+  touchBotton() {
+    return this.y + this.radius > this.height;
+  }
+
+  changeDirectionTo(pi) {
+    this.direction = pi;
+  }
+
+  randomDirection() {
+    this.direction = Math.random() * Math.PI * 2;
+    console.log("random direction");
   }
 }
 
@@ -152,14 +184,88 @@ class Base {
       this.getBlock(`block-${i}`).draw();
       i++;
     }
+    this.board.reset();
+    this.ball.reset();
     this.refresh();
+  }
+
+  ballTouchSomething(x, y, width, height) {
+    if (
+      this.ball.x + this.ball.radius > x &&
+      this.ball.x - this.ball.radius < x + width &&
+      this.ball.y + this.ball.radius > y &&
+      this.ball.y - this.ball.radius < y + height
+    ) {
+      console.log("touch something");
+      if (this.ball.x > x && this.ball.x < x + width) {
+        this.ball.changeDirectionTo(-this.ball.direction);
+      } else {
+        // if (this.ball.y > y && this.ball.y < y + height)
+        this.ball.changeDirectionTo(Math.PI - this.ball.direction);
+      }
+      return true;
+    }
+    return false;
+  }
+
+  checkBlockCollision() {
+    // check if the ball touch the block
+    this.blockMap.forEach((block, id) => {
+      if (this.ballTouchSomething(block.x, block.y, blockWidth, blockHeight)) {
+        console.log(`touch ${id}`);
+        this.deleteBlock(id);
+      }
+    });
+  }
+
+  checkBoardCollision() {
+    if (
+      this.ballTouchSomething(
+        this.board.x,
+        this.board.y,
+        boardWidth,
+        boardHeigh
+      )
+    ) {
+      console.log("touch board");
+      score++;
+    }
+  }
+
+  checkEdgeCollision() {
+    if (this.ball.x + this.ball.radius > this.width) {
+      this.ball.changeDirectionTo(Math.PI - this.ball.direction);
+    }
+    if (this.ball.x - this.ball.radius < 0) {
+      this.ball.changeDirectionTo(Math.PI - this.ball.direction);
+    }
+    if (this.ball.y - this.ball.radius < 0) {
+      this.ball.changeDirectionTo(-this.ball.direction);
+    }
   }
 }
 
 const board = new Board(myCanvas);
 const ball = new Ball(myCanvas);
 const base = new Base(myCanvas, board, ball);
+let startStatus = false;
 base.reset();
+
+// let timeFrame = setInterval(oneFrame, 10);
+
+function oneFrame() {
+  base.ball.move();
+  if (base.ball.touchBotton()) {
+    clearInterval(timeFrame);
+    // alert("Game Over");
+  }
+  base.checkBlockCollision();
+  base.checkBoardCollision();
+  base.checkEdgeCollision();
+  base.refresh();
+}
+
+let randomDirection = setInterval(ball.randomDirection, 1000);
 
 document.addEventListener("keydown", (e) => {
   let moveStep = step;
@@ -174,7 +280,6 @@ document.addEventListener("keydown", (e) => {
       board.energy += 1;
     }
   }
-  console.log(board.energy);
   switch (e.key) {
     case "ArrowLeft":
       board.moveLeft(moveStep);
@@ -182,13 +287,28 @@ document.addEventListener("keydown", (e) => {
     case "ArrowRight":
       board.moveright(moveStep);
       break;
+    case "r":
+      base.reset();
+      break;
+    case "s":
+      if (!startStatus) {
+        startStatus = true;
+        randomDirection = setInterval(ball.randomDirection, 1000);
+        timeFrame = setInterval(oneFrame, 10);
+      }
+      break;
+    case "p":
+      if (startStatus) {
+        startStatus = false;
+        clearInterval(timeFrame);
+        clearInterval(randomDirection);
+      }
+      break;
+    case "t":
+      oneFrame();
+      break;
   }
   base.refresh();
 });
 
-// Create blocks on top of the base
-
 console.log("done");
-
-// base.setBlock("block-100", 0, 100, 50, 10, blockColor);
-// base.getBlock("block-100").draw();
