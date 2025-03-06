@@ -1,148 +1,148 @@
-.max-width-container{
-    max-width: 1200px;
-    margin: auto;
-    min-width: 90%;
+.max-width-container {
+  max-width: 1200px;
+  margin: auto;
+  min-width: 90%;
 }
 
-.card{
-    position: relative;
+.card {
+  position: relative;
 }
 
-.img-ski-container{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+.img-ski-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 }
 
-.img{
-    width: 100%;
-    display: block;
+.img {
+  width: 100%;
+  display: block;
 }
 
-.img-group{
-    width: 75%;
-    height: 50%;
-    border: 10px solid var(--primary-color);
-    border-radius: 10px;
+.img-group {
+  width: 75%;
+  height: 50%;
+  border: 10px solid var(--primary-color);
+  border-radius: 10px;
 }
 
-.img-group-left{
-    margin-right: auto;
-    margin-left: 5%;
+.img-group-left {
+  margin-right: auto;
+  margin-left: 5%;
 }
 
-.img-group-right{
-    margin-left: auto;
-    margin-right: 5%;
+.img-group-right {
+  margin-left: auto;
+  margin-right: 5%;
 }
 
-.txt-container{
-    background-color: var(--secondary-color);
-    width: 65%;
-    margin-top: 2%;
-    padding: 10px 30px;
-    border-radius: 50px;
+.txt-container {
+  background-color: var(--secondary-color);
+  width: 65%;
+  margin-top: 2%;
+  padding: 10px 30px;
+  border-radius: 50px;
 }
 
-.txt-container-left{
-    margin-right: auto;
-    margin-left: 5%;
+.txt-container-left {
+  margin-right: auto;
+  margin-left: 5%;
 }
 
-.txt-container-right{
-    margin-left: auto;
-    margin-right: 5%;
+.txt-container-right {
+  margin-left: auto;
+  margin-right: 5%;
 }
 
-.txt{
-    font-size: x-large;
-    color: white;
+.txt {
+  font-size: x-large;
+  color: white;
 }
 
-.smart-txt{
-    font-size: medium;
+.smart-txt {
+  font-size: medium;
 }
 
-.img-sd-container{
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+.img-sd-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
 }
 
-.video-group{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+.video-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 }
 
-.video{
-    width: 100%;
-    height: 33vh;
+.video {
+  width: 100%;
+  height: 33vh;
 }
 
-iframe{
-    width: 100%;
-    height: 100%;
+iframe {
+  width: 100%;
+  height: 100%;
 }
 
-.txt-in-img{
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    color: white; 
-    display: none;
-    justify-content: center;
-    align-items: center;
+.txt-in-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  display: none;
+  justify-content: center;
+  align-items: center;
 }
 
-.prompt{
-    font-size: medium;
+.prompt {
+  font-size: medium;
 }
 
-.card:hover .txt-in-img{
-    display: flex;
+.card:hover .txt-in-img {
+  display: flex;
 }
 
-.d-lg-block{
-    display: block;
+.d-lg-block {
+  display: block;
 }
 
-.d-sm-block{
-    display: none;
+.d-sm-block {
+  display: none;
 }
 
 @media screen and (max-width: 768px) {
-    .img-group{
-        width: 70%;
-    }
-    .img-group-left{
-        width: 80% !important;
-    }
-    .img-ski-container{
-        grid-template-columns: 1fr !important;
-    }
-    .img-sd-container{
-        grid-template-columns: 1fr !important;
-    }
-    .txt{
-        font-size: larger !important;
-    }
-    .smart-txt{
-        font-size: small !important;
-    }
-    .video-group{
-        grid-template-columns: 1fr !important;
-    }
-    .d-lg-block{
-        display: none !important;
-    }
-    .d-sm-block{
-        display: block !important;
-    }
+  .img-group {
+    width: 70%;
+  }
+  .img-group-left {
+    width: 80% !important;
+  }
+  .img-ski-container {
+    grid-template-columns: 1fr !important;
+  }
+  .img-sd-container {
+    grid-template-columns: 1fr !important;
+  }
+  .txt {
+    font-size: larger !important;
+  }
+  .smart-txt {
+    font-size: small !important;
+  }
+  .video-group {
+    grid-template-columns: 1fr !important;
+  }
+  .d-lg-block {
+    display: none !important;
+  }
+  .d-sm-block {
+    display: block !important;
+  }
 }
 
 @media screen and (min-width: 1024px) {
-    .prompt{
-        font-size: larger !important;
-    }
+  .prompt {
+    font-size: larger !important;
+  }
 }

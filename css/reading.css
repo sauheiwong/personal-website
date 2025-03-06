@@ -1,51 +1,51 @@
-#style-nav ul{
-    display: flex;
-    justify-content: space-around;
+#style-nav ul {
+  display: flex;
+  justify-content: space-around;
 }
 
-#style-nav ul li{
-    list-style: none;
+#style-nav ul li {
+  list-style: none;
 }
 
-#style-nav ul li a{
-    font-size: 25px;
-    background-color: var(--highlight-color);
-    border-radius: 50px 0px 50px 0px;
-    padding: 5px 20px;
-    color: black;
-    text-decoration: none;
+#style-nav ul li a {
+  font-size: 25px;
+  background-color: var(--highlight-color);
+  border-radius: 50px 0px 50px 0px;
+  padding: 5px 20px;
+  color: black;
+  text-decoration: none;
 }
 
-#style-nav ul li a:hover{
-    background-color: rgb(0, 200, 200);
+#style-nav ul li a:hover {
+  background-color: rgb(0, 200, 200);
 }
 
-.smart-txt{
-    color: white;
+.smart-txt {
+  color: white;
 }
 
 img:hover {
-    animation: scaleUp 0.5s ease forwards;
+  animation: scaleUp 0.5s ease forwards;
 }
 
-img:not(:hover){
-    animation: scaleDown 0.3s ease forwards;
+img:not(:hover) {
+  animation: scaleDown 0.3s ease forwards;
 }
 
 @keyframes scaleUp {
-    0% {
-        transform: scale(1);
-    }
-    100% {
-        transform: scale(2);
-    }
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(2);
+  }
 }
 
 @keyframes scaleDown {
-    0% {
-      transform: scale(2);
-    }
-    100% {
-      transform: scale(1);
-    }
+  0% {
+    transform: scale(2);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
