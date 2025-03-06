@@ -1,0 +1,41 @@
+table{
+    max-width: 1024px;
+    min-width: 90%;
+    border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: -10px 10px 10px var(--secondary-color);
+}
+
+.max-width-container{
+    max-width: 90%;
+    margin: auto;
+    display: flex;
+}
+
+th, td{
+    border: 1px solid black;
+    padding: 8px;
+    text-align: left;
+}
+
+th{
+    background-color: var(--highlight-color);
+    color: black;
+}
+
+img{
+    max-width: 150px;
+    height: auto;
+}
+
+tr{
+    background-color: rgb(50, 50, 50);
+    color: white;
+
+}
+
+tr:hover{
+    background-color: var(--secondary-color);
+    color: black
+}
