@@ -9,6 +9,6 @@
 #myCanvas {
   border: 1px solid var(--primary-color);
   width: 832px;
-  height: 512px;
+  height: 768px;
   background-color: black;
 }
