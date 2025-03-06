@@ -164,17 +164,18 @@ class Base { // The information of the game will be stored in this class
 
     // Find the best move for the computer
     // 1. find the empty area
-    // 2. computer defense
-    // 2.1. defense means the computer finds the area which player will win in the next round if they set the area in the next round
-    // 2.2. if the computer finds the area which player will win in the next round, the computer will set the area
-    // 2.3.1 if the computer needs to defense, return 1
-    // 2.3.2 if the computer does not need to defense, return 0
-    // 3. find which area has the most winning chance if the computer does not need to defense
-    // 3.1  find any area which computer can win if the computer set the area
-    // 3.2. the most winning chance means the area has the hightest frequency in the winList for the computer
-    // 3.3. if the computer finds the area which has the most winning chance, the computer will set the area
-    // 3.4. return the area
-    // 4. set the area with the computer
+    // 2. if the computer can win, the computer will set the area
+    // 3. computer defense
+    // 3.1. defense means the computer finds the area which player will win in the next round if they set the area in the next round
+    // 3.2. if the computer finds the area which player will win in the next round, the computer will set the area
+    // 3.3.1 if the computer needs to defense, return 1
+    // 3.3.2 if the computer does not need to defense, return 0
+    // 4. find which area has the most winning chance if the computer does not need to defense
+    // 4.1  find any area which computer can win if the computer set the area
+    // 4.2. the most winning chance means the area has the hightest frequency in the winList for the computer
+    // 4.3. if the computer finds the area which has the most winning chance, the computer will set the area
+    // 4.4. return the area
+    // 5. set the area with the computer
     findBestMove(){
         let emptyArea = this.findEmptyArea();
         if (this.canComputerWin(emptyArea) === 1){
