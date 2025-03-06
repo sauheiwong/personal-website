@@ -15,9 +15,8 @@ class Base {
     ]);
     this.round = 0; // The round of the game
   }
-
+  // Set the area with the player
   setArea(area_id, player) {
-    // Set the area with the player
     this.areaMap.set(area_id, player); // Set the area with the player
     let area = document.getElementById(area_id);
     area.style.backgroundSize = "100% 100%"; // Set the background size to 100% 100% so that the image will fit the area
@@ -28,14 +27,13 @@ class Base {
     }
     this.round++; // Increase the round
   }
-
+  // Get the area
   getArea(area_id) {
-    // Get the area
     return this.areaMap.get(area_id);
   }
 
+  // Check if there is a winner
   checkWin() {
-    // Check if there is a winner
     const winList = [
       ["area-1", "area-2", "area-3"],
       ["area-4", "area-5", "area-6"],
@@ -59,9 +57,8 @@ class Base {
     }
     return 0; // If there is no winner, return 0
   }
-
+  // Reset the game
   reset() {
-    // Reset the game
     this.areaMap = new Map([
       ["area-1", 0],
       ["area-2", 0],
