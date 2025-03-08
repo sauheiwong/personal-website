@@ -5,20 +5,21 @@ const blockWidth = 100;
 const blockHeight = 50;
 
 const totalNumberOfBlocks = 48;
-const boardWidth = 100;
-const boardHeigh = 10;
+const boardWidth = 150;
+const boardHeigh = 50;
 const boardInitialX = myCanvas.width / 2 - boardWidth / 2;
 const boardInitialY = myCanvas.height - boardHeigh - 100;
 
 const energyMax = 20;
 const step = 10;
 
-const ballRadius = 20;
+const ballRadius = 10;
 const ballSpeed = 2;
 const ballinitialX = myCanvas.width / 2;
 const ballinitialY = myCanvas.height / 2;
 
 let score = 0;
+let timeFrameNumber = 10;
 
 // Block class for creating blocks
 class Block {
@@ -134,7 +135,7 @@ class Ball {
 
   randomDirection() {
     this.direction = Math.random() * Math.PI * 2;
-    console.log("random direction");
+    // console.log("random direction");
   }
 }
 
@@ -148,6 +149,10 @@ class Base {
     this.ctx = canvas.getContext("2d");
     this.board = board;
     this.ball = ball;
+  }
+
+  checkBlockMapEmpty() {
+    return this.blockMap.size === 0;
   }
 
   getBlock(id) {
@@ -189,19 +194,39 @@ class Base {
     this.refresh();
   }
 
-  ballTouchSomething(x, y, width, height) {
+  changeDirectionByTouching(x, y, width, height) {
     if (
       this.ball.x + this.ball.radius > x &&
       this.ball.x - this.ball.radius < x + width &&
       this.ball.y + this.ball.radius > y &&
       this.ball.y - this.ball.radius < y + height
     ) {
-      console.log("touch something");
-      if (this.ball.x > x && this.ball.x < x + width) {
-        this.ball.changeDirectionTo(-this.ball.direction);
-      } else {
-        // if (this.ball.y > y && this.ball.y < y + height)
-        this.ball.changeDirectionTo(Math.PI - this.ball.direction);
+      const legthDifferentMap = new Map([
+        ["top", this.ball.y + this.ball.radius - y],
+        ["bottom", this.ball.y - this.ball.radius - (y + height)],
+        ["left", this.ball.x + this.ball.radius - x],
+        ["right", this.ball.x - this.ball.radius - (x + width)],
+      ]);
+      let minDifferent = 10000;
+      let touchEdge = "";
+      legthDifferentMap.forEach((value, key) => {
+        console.log(`${key} : ${Math.abs(value)}`);
+        if (Math.abs(value) < minDifferent) {
+          minDifferent = Math.abs(value);
+          touchEdge = key;
+        }
+      });
+      switch (touchEdge) {
+        case "top":
+        case "bottom":
+          this.ball.changeDirectionTo(-this.ball.direction);
+          console.log("top or bottom");
+          break;
+        case "left":
+        case "right":
+          this.ball.changeDirectionTo(Math.PI - this.ball.direction);
+          console.log("left or right");
+          break;
       }
       return true;
     }
@@ -211,8 +236,14 @@ class Base {
   checkBlockCollision() {
     // check if the ball touch the block
     this.blockMap.forEach((block, id) => {
-      if (this.ballTouchSomething(block.x, block.y, blockWidth, blockHeight)) {
-        console.log(`touch ${id}`);
+      if (
+        this.changeDirectionByTouching(
+          block.x,
+          block.y,
+          blockWidth,
+          blockHeight
+        )
+      ) {
         this.deleteBlock(id);
       }
     });
@@ -220,14 +251,13 @@ class Base {
 
   checkBoardCollision() {
     if (
-      this.ballTouchSomething(
+      this.changeDirectionByTouching(
         this.board.x,
         this.board.y,
         boardWidth,
         boardHeigh
       )
     ) {
-      console.log("touch board");
       score++;
     }
   }
@@ -257,15 +287,19 @@ function oneFrame() {
   base.ball.move();
   if (base.ball.touchBotton()) {
     clearInterval(timeFrame);
-    // alert("Game Over");
+    startStatus = false;
+    alert("Game Over");
+  }
+  if (base.checkBlockMapEmpty()) {
+    clearInterval(timeFrame);
+    startStatus = false;
+    alert("You Win!");
   }
   base.checkBlockCollision();
   base.checkBoardCollision();
   base.checkEdgeCollision();
   base.refresh();
 }
-
-let randomDirection = setInterval(ball.randomDirection, 1000);
 
 document.addEventListener("keydown", (e) => {
   let moveStep = step;
@@ -293,8 +327,8 @@ document.addEventListener("keydown", (e) => {
     case "s":
       if (!startStatus) {
         startStatus = true;
-        randomDirection = setInterval(ball.randomDirection, 1000);
-        timeFrame = setInterval(oneFrame, 10);
+        // randomDirection = setInterval(ball.randomDirection, 1000);
+        timeFrame = setInterval(oneFrame, timeFrameNumber);
       }
       break;
     case "p":
