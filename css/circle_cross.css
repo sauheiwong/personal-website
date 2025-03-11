@@ -4,6 +4,7 @@
   align-items: center;
   height: 100vh;
   flex-direction: column;
+  position: relative;
 }
 
 .base {
@@ -27,19 +28,74 @@
   align-items: center;
 }
 
+#pop-up-container {
+  display: none;
+  position: absolute;
+  width: 30%;
+  height: 20%;
+}
+
+.pop-up {
+  display: grid;
+  background-color: var(--secondary-color);
+  border-radius: 10px;
+  border: 5px solid var(--primary-color);
+  grid-template-areas:
+    "message message"
+    "restart ok";
+}
+
+#finsh-message-container {
+  grid-area: message;
+  font-size: xx-large;
+  width: 100%;
+  height: 100%;
+}
+
+.pop-up > div {
+  width: 50%;
+  /* text-align: center;
+  margin: auto; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pop p {
+  display: block;
+  width: 100%;
+}
+
+#restart-2 {
+  width: 10%;
+  height: 5%;
+  justify-content: center;
+  display: none;
+}
+
 .area:hover,
-#restart:hover {
+.btn:hover {
   background-color: var(--highlight-color);
 }
 
 #restart {
-  margin: 0 auto;
-  margin-top: 20px;
-  padding: 0 20px;
+  grid-area: restart;
+}
+
+#ok {
+  grid-area: ok;
+}
+
+.btn {
+  /* padding: 10px 20px; */
+  width: 100%;
+  height: 50%;
+  justify-self: center;
+  align-self: center;
   border: 5px solid var(--primary-color);
   border-radius: 10px;
   background-color: var(--secondary-color);
-  display: none;
+  display: flex;
 }
 
 .nav-div {

@@ -194,8 +194,7 @@ class Base {
   findBestMove() {
     let emptyArea = this.findEmptyArea();
     if (this.canComputerWin(emptyArea) === 1) {
-      alert(`Computer wins!`);
-      document.getElementById("restart").style.display = "block"; // Display the restart button
+      finshMessage("player_2");
       return;
     }
     if (this.defense(emptyArea) == 1) {
@@ -203,20 +202,47 @@ class Base {
     }
     this.heightWinningChance(emptyArea);
     if (this.checkWin() === 1) {
-      alert(`Computer wins!`);
-      document.getElementById("restart").style.display = "block"; // Display the restart button
+      finshMessage("player_2");
       return; // If there is a winner, give an alert
     }
   }
 }
 
-document.getElementById("restart").addEventListener("click", () => {
-  base.reset(); // Reset the game
-  document.getElementById("restart").style.display = "none"; // Hide the restart button
-});
-
 const base = new Base(); // Create a new instance of a new game
 let player = 1; // 1 means cross(player), 2 means circle(computer)
+const finshMessageText = document.getElementById("finsh-message");
+const popUpContainer = document.getElementById("pop-up-container");
+const restart2Button = document.getElementById("restart-2");
+
+const restartFunc = () => {
+  base.reset(); // Reset the game
+  popUpContainer.style.display = "none"; // Hide the pop up
+  restart2Button.style.display = "none";
+};
+
+restart2Button.addEventListener("click", restartFunc);
+
+document.getElementById("restart").addEventListener("click", restartFunc);
+
+document.getElementById("ok").addEventListener("click", () => {
+  popUpContainer.style.display = "none"; // Hide the pop up
+  document.getElementById("restart-2").style.display = "flex";
+});
+
+const finshMessage = (result) => {
+  popUpContainer.style.display = "block";
+  switch (result) {
+    case "player_1":
+      finshMessageText.textContent = "player 1 Win!🎉";
+      break;
+    case "player_2":
+      finshMessageText.textContent = "Computer Win!💻";
+      break;
+    case "draw":
+      finshMessageText.textContent = "Draw!";
+      break;
+  }
+};
 
 // how the web know user click which area
 [...document.getElementsByClassName("area")].forEach((area) => {
@@ -233,12 +259,11 @@ let player = 1; // 1 means cross(player), 2 means circle(computer)
     console.log(`round ${base.round}`);
     console.log(player);
     if (base.checkWin() === 1) {
-      alert(`Player ${player === 1 ? "player_2" : "player_1"} wins!`);
+      finshMessage(player === 1 ? "player_2" : "player_1");
       return; // If there is a winner, give an alert
     }
     if (base.round === 9) {
-      alert("Draw!");
-      document.getElementById("restart").style.display = "block"; // Display the restart button
+      finshMessage("Draw!");
       return; // If it is a draw, give an alert
     }
     if (player === 1) {

@@ -15,9 +15,8 @@ class Base {
     ]);
     this.round = 0; // The round of the game
   }
-
+  // Set the area with the player
   setArea(area_id, player) {
-    // Set the area with the player
     this.areaMap.set(area_id, player); // Set the area with the player
     let area = document.getElementById(area_id);
     area.style.backgroundSize = "100% 100%"; // Set the background size to 100% 100% so that the image will fit the area
@@ -28,14 +27,13 @@ class Base {
     }
     this.round++; // Increase the round
   }
-
+  // Get the area
   getArea(area_id) {
-    // Get the area
     return this.areaMap.get(area_id);
   }
 
+  // Check if there is a winner
   checkWin() {
-    // Check if there is a winner
     const winList = [
       ["area-1", "area-2", "area-3"],
       ["area-4", "area-5", "area-6"],
@@ -53,15 +51,13 @@ class Base {
         this.getArea(b) === this.getArea(c) &&
         this.getArea(a) !== 0
       ) {
-        document.getElementById("restart").style.display = "block"; // Display the restart button
         return 1; // If there is a winner, return 1
       }
     }
     return 0; // If there is no winner, return 0
   }
-
+  // Reset the game
   reset() {
-    // Reset the game
     this.areaMap = new Map([
       ["area-1", 0],
       ["area-2", 0],
@@ -79,14 +75,41 @@ class Base {
     });
   }
 }
-
-document.getElementById("restart").addEventListener("click", () => {
-  base.reset(); // Reset the game
-  document.getElementById("restart").style.display = "none"; // Hide the restart button
-});
-
 const base = new Base(); // Create a new instance of a new game
 let player = 1; // 1 means cross, 2 means circle
+const finshMessageText = document.getElementById("finsh-message");
+const popUpContainer = document.getElementById("pop-up-container");
+const restart2Button = document.getElementById("restart-2");
+
+const restartFunc = () => {
+  base.reset(); // Reset the game
+  popUpContainer.style.display = "none"; // Hide the pop up
+  restart2Button.style.display = "none";
+};
+
+restart2Button.addEventListener("click", restartFunc);
+
+document.getElementById("restart").addEventListener("click", restartFunc);
+
+document.getElementById("ok").addEventListener("click", () => {
+  popUpContainer.style.display = "none"; // Hide the pop up
+  document.getElementById("restart-2").style.display = "flex";
+});
+
+const finshMessage = (result) => {
+  popUpContainer.style.display = "block";
+  switch (result) {
+    case "player_1":
+      finshMessageText.textContent = "player 1 Win!🎉";
+      break;
+    case "player_2":
+      finshMessageText.textContent = "player 2 Win!🎉";
+      break;
+    case "draw":
+      finshMessageText.textContent = "Draw!";
+      break;
+  }
+};
 
 // how the web know user click which area
 [...document.getElementsByClassName("area")].forEach((area) => {
@@ -102,11 +125,12 @@ let player = 1; // 1 means cross, 2 means circle
     console.log(area.id);
     base.setArea(area.id, player);
     if (base.checkWin() === 1) {
-      alert(`Player ${player === 1 ? "player_1" : "player_2"} wins!`);
+      finshMessage(player === 1 ? "player_1" : "player_2");
+      // alert(`Player ${player === 1 ? "player_1" : "player_2"} wins!`);
       return; // If there is a winner, give an alert
     }
     if (base.round === 9) {
-      alert("Draw!");
+      finshMessage("draw");
       return; // If it is a draw, give an alert
     }
     player = player === 1 ? (player = 2) : (player = 1); // Change the player after click

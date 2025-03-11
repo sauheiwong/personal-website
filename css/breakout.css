@@ -1,0 +1,14 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  flex-direction: column;
+}
+
+#myCanvas {
+  border: 1px solid var(--primary-color);
+  width: 832px;
+  height: 768px;
+  background-color: black;
+}
