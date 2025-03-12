@@ -80,7 +80,7 @@ let player = 1; // 1 means cross, 2 means circle
 const finshMessageText = document.getElementById("finsh-message");
 const popUpContainer = document.getElementById("pop-up-container");
 const restart2Button = document.getElementById("restart-2");
-let winStatus = false;
+let winStatus = false; // if false, player can not click the area, if true, player can click
 
 const restartFunc = () => {
   base.reset(); // Reset the game
