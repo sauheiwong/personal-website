@@ -4,6 +4,7 @@
   align-items: center;
   height: 100vh;
   flex-direction: column;
+  gap: 10px;
 }
 
 #myCanvas {
@@ -11,4 +12,15 @@
   width: 832px;
   height: 768px;
   background-color: black;
+}
+
+.tips {
+  /* height: 5%; */
+  width: 50%;
+  background-color: var(--secondary-color);
+  border: 5px solid var(--primary-color);
+  border-radius: 15px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  justify-items: center;
 }

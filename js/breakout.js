@@ -278,7 +278,7 @@ class Base {
 const board = new Board(myCanvas);
 const ball = new Ball(myCanvas);
 const base = new Base(myCanvas, board, ball);
-let startStatus = false;
+let startStatus = false; // if true, the game has been started, if false, game has been stopped.
 base.reset();
 
 // let timeFrame = setInterval(oneFrame, 10);
@@ -316,9 +316,17 @@ document.addEventListener("keydown", (e) => {
   }
   switch (e.key) {
     case "ArrowLeft":
+      if (!startStatus) {
+        // disactive it
+        return;
+      }
       board.moveLeft(moveStep);
       break;
     case "ArrowRight":
+      if (!startStatus) {
+        // disactive it
+        return;
+      }
       board.moveright(moveStep);
       break;
     case "r":
@@ -335,7 +343,7 @@ document.addEventListener("keydown", (e) => {
       if (startStatus) {
         startStatus = false;
         clearInterval(timeFrame);
-        clearInterval(randomDirection);
+        // clearInterval(randomDirection);
       }
       break;
     case "t":
