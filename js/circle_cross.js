@@ -80,11 +80,13 @@ let player = 1; // 1 means cross, 2 means circle
 const finshMessageText = document.getElementById("finsh-message");
 const popUpContainer = document.getElementById("pop-up-container");
 const restart2Button = document.getElementById("restart-2");
+let winStatus = false;
 
 const restartFunc = () => {
   base.reset(); // Reset the game
   popUpContainer.style.display = "none"; // Hide the pop up
   restart2Button.style.display = "none";
+  winStatus = false;
 };
 
 restart2Button.addEventListener("click", restartFunc);
@@ -114,6 +116,9 @@ const finshMessage = (result) => {
 // how the web know user click which area
 [...document.getElementsByClassName("area")].forEach((area) => {
   area.addEventListener("click", () => {
+    if (winStatus) {
+      return;
+    }
     if (base.getArea(area.id) !== 0) {
       alert(
         `This area has been click by ${
@@ -126,11 +131,12 @@ const finshMessage = (result) => {
     base.setArea(area.id, player);
     if (base.checkWin() === 1) {
       finshMessage(player === 1 ? "player_1" : "player_2");
-      // alert(`Player ${player === 1 ? "player_1" : "player_2"} wins!`);
+      winStatus = true;
       return; // If there is a winner, give an alert
     }
     if (base.round === 9) {
       finshMessage("draw");
+      winStatus = true;
       return; // If it is a draw, give an alert
     }
     player = player === 1 ? (player = 2) : (player = 1); // Change the player after click

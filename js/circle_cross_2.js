@@ -54,7 +54,6 @@ class Base {
         this.getArea(b) === this.getArea(c) &&
         this.getArea(a) !== 0
       ) {
-        document.getElementById("restart").style.display = "block"; // Display the restart button
         return 1; // If there is a winner, return 1
       }
     }
@@ -94,7 +93,7 @@ class Base {
   canComputerWin(emptyArea) {
     for (let emptyAreaElement of emptyArea) {
       this.areaMap.set(emptyAreaElement, 2); // assume the computer will set the area
-      console.log(`defense test area ${emptyAreaElement}`);
+      // console.log(`defense test area ${emptyAreaElement}`);
       for (let winListElement of this.winList) {
         let [a, b, c] = winListElement;
         if (
@@ -120,7 +119,7 @@ class Base {
     // If the computer does not need to defense, return 0
     for (let emptyAreaElement of emptyArea) {
       this.areaMap.set(emptyAreaElement, 1); // assume the player will set the area
-      console.log(`defense test area ${emptyAreaElement}`);
+      // console.log(`defense test area ${emptyAreaElement}`);
       for (let winListElement of this.winList) {
         let [a, b, c] = winListElement;
         if (
@@ -195,6 +194,7 @@ class Base {
     let emptyArea = this.findEmptyArea();
     if (this.canComputerWin(emptyArea) === 1) {
       finshMessage("player_2");
+      winStatus = true;
       return;
     }
     if (this.defense(emptyArea) == 1) {
@@ -202,7 +202,8 @@ class Base {
     }
     this.heightWinningChance(emptyArea);
     if (this.checkWin() === 1) {
-      finshMessage("player_2");
+      finshMessage(`${player === 1 ? "player_1" : "computer"} Win!`);
+      winStatus = true;
       return; // If there is a winner, give an alert
     }
   }
@@ -213,11 +214,13 @@ let player = 1; // 1 means cross(player), 2 means circle(computer)
 const finshMessageText = document.getElementById("finsh-message");
 const popUpContainer = document.getElementById("pop-up-container");
 const restart2Button = document.getElementById("restart-2");
+let winStatus = false;
 
 const restartFunc = () => {
   base.reset(); // Reset the game
   popUpContainer.style.display = "none"; // Hide the pop up
   restart2Button.style.display = "none";
+  winStatus = false;
 };
 
 restart2Button.addEventListener("click", restartFunc);
@@ -247,6 +250,10 @@ const finshMessage = (result) => {
 // how the web know user click which area
 [...document.getElementsByClassName("area")].forEach((area) => {
   area.addEventListener("click", () => {
+    if (winStatus) {
+      return;
+    }
+    player = 1;
     if (base.getArea(area.id) !== 0) {
       alert(
         `This area has been click by ${
@@ -259,15 +266,18 @@ const finshMessage = (result) => {
     console.log(`round ${base.round}`);
     console.log(player);
     if (base.checkWin() === 1) {
-      finshMessage(player === 1 ? "player_2" : "player_1");
+      finshMessage(player === 1 ? "player_1" : "player_2");
+      winStatus = true;
       return; // If there is a winner, give an alert
     }
     if (base.round === 9) {
-      finshMessage("Draw!");
+      finshMessage("draw");
+      winStatus = true;
       return; // If it is a draw, give an alert
     }
     if (player === 1) {
       base.findBestMove(); // Find the best move for the computer
+      player = 2;
     }
   });
 });
