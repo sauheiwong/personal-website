@@ -193,7 +193,7 @@ class Base {
   findBestMove() {
     let emptyArea = this.findEmptyArea();
     if (this.canComputerWin(emptyArea) === 1) {
-      finshMessage("player_2");
+      editFinshContainer("player_2");
       winStatus = true;
       return;
     }
@@ -202,7 +202,7 @@ class Base {
     }
     this.heightWinningChance(emptyArea);
     if (this.checkWin() === 1) {
-      finshMessage(`${player === 1 ? "player_1" : "computer"} Win!`);
+      editFinshContainer(`${player === 1 ? "player_1" : "computer"} Win!`);
       winStatus = true;
       return; // If there is a winner, give an alert
     }
@@ -218,7 +218,7 @@ let winStatus = false; // if false, player can not click the area, if true, play
 
 const restartFunc = () => {
   base.reset(); // Reset the game
-  popUpContainer.style.display = "none"; // Hide the pop up
+  editFinshContainer("reset");
   restart2Button.style.display = "none";
   winStatus = false;
 };
@@ -228,23 +228,27 @@ restart2Button.addEventListener("click", restartFunc);
 document.getElementById("restart").addEventListener("click", restartFunc);
 
 document.getElementById("ok").addEventListener("click", () => {
-  popUpContainer.style.display = "none"; // Hide the pop up
+  editFinshContainer("reset");
   document.getElementById("restart-2").style.display = "flex";
 });
 
-const finshMessage = (result) => {
-  popUpContainer.style.display = "block";
+const editFinshContainer = (result) => {
   switch (result) {
+    case "reset":
+      popUpContainer.style.left = "-50%";
+      finshMessageText.textContent = "";
+      return;
     case "player_1":
       finshMessageText.textContent = "player 1 Win!🎉";
       break;
     case "player_2":
-      finshMessageText.textContent = "Computer Win!💻";
+      finshMessageText.textContent = "Computer Win💻";
       break;
     case "draw":
       finshMessageText.textContent = "Draw!";
       break;
   }
+  popUpContainer.style.left = "37.5%";
 };
 
 // how the web know user click which area
@@ -266,12 +270,12 @@ const finshMessage = (result) => {
     console.log(`round ${base.round}`);
     console.log(player);
     if (base.checkWin() === 1) {
-      finshMessage(player === 1 ? "player_1" : "player_2");
+      editFinshContainer(player === 1 ? "player_1" : "player_2");
       winStatus = true;
       return; // If there is a winner, give an alert
     }
     if (base.round === 9) {
-      finshMessage("draw");
+      editFinshContainer("draw");
       winStatus = true;
       return; // If it is a draw, give an alert
     }
