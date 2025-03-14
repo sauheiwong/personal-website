@@ -8,8 +8,8 @@
 }
 
 #myCanvas {
-  border: 1px solid var(--primary-color);
-  width: 832px;
-  height: 768px;
-  background-color: black;
+  /* border: 1px solid var(--primary-color); */
+  width: 80vh;
+  height: 80vh;
+  background-color: rgb(50, 50, 50);
 }
