@@ -27,10 +27,22 @@ const levelSetUp = {
   },
 };
 
-let level = "medium";
+let level = "hard";
 
 let blockWidth = levelSetUp[`${level}`].blockWidth;
 let blockHeigh = levelSetUp[`${level}`].blockHeigh;
+
+function andWithTwoSet(set_a, set_b) {
+  return new Set([...set_a].filter((element) => set_b.has(element)));
+}
+
+function orWithTwoSet(set_a, set_b) {
+  return new Set([...set_a, ...set_b]);
+}
+
+function diffWithTwoSet(set_a, set_b) {
+  return new Set([...set_a].filter((element) => !set_b.has(element)));
+}
 
 class Block {
   constructor(x, y, value) {
@@ -43,10 +55,10 @@ class Block {
       [2, "#f00"],
     ]);
   }
-  setvalue(value) {
+  setValue(value) {
     this.value = value;
   }
-  getvalue() {
+  getValue() {
     return this.value;
   }
   draw() {
@@ -83,13 +95,56 @@ class Base {
     this.areaMap.set(id, value);
   }
 
-  getNearBlock(x, y) {
-    return new Set([
-      this.getArea(x, y - 1), // top
-      this.getArea(x, y + 1), // down
-      this.getArea(x - 1, y), // left
-      this.getArea(x + 1, y), // right
-    ]);
+  getNextBlock(x, y) {
+    // return an array of block which is next to the block in position (x, y)
+    return [
+      { x: x, y: y - 1, block: this.getArea(x, y - 1) }, // top
+      { x: x, y: y + 1, block: this.getArea(x, y + 1) }, // down
+      { x: x - 1, y: y, block: this.getArea(x - 1, y) }, // left
+      { x: x + 1, y: y, block: this.getArea(x + 1, y) }, // right
+    ].filter((area) => {
+      if (
+        area.x >= 0 &&
+        area.x < levelSetUp[`${level}`].width - 1 &&
+        area.y >= 0 &&
+        area.y < levelSetUp[`${level}`].heigh - 1 // filter out those block which is outside the base
+      ) {
+        return true;
+      }
+      return false;
+    });
+  }
+
+  getAreaWithEmpty(x, y) {
+    const checkedArray = [{ x, y, block: this.getArea(x, y) }]; // an array for the position of checked area
+    const goToCheckArray = this.getNextBlock(x, y).filter(
+      (block) => block.block.getValue() === 0
+    ); // an array for the position of going to check area with empty
+    while (goToCheckArray.length != 0) {
+      let block = goToCheckArray.pop();
+      // if new block is in checked array, then pass it.
+      if (
+        checkedArray.some(
+          (checked) => checked.x === block.x && checked.y === block.y
+        )
+      ) {
+        continue;
+      }
+      checkedArray.push(block); // push new block into checked array
+      let nextBlockWithEmpty = this.getNextBlock(block.x, block.y).filter(
+        (nextBlock) => nextBlock.block.getValue() === 0
+      ); // get the block, which is next to position (x, y), and it is empty
+      nextBlockWithEmpty.forEach((nextBlock) => {
+        if (
+          !goToCheckArray.some(
+            (checked) => checked.x === nextBlock.x && checked.y === nextBlock.y
+          ) // if near block is in goToCheck array, pass it
+        ) {
+          goToCheckArray.push(nextBlock); // push the new block, which is next to position (x, y), into goToCheck array
+        }
+      });
+    }
+    return checkedArray;
   }
 
   setAreaMap() {
@@ -110,7 +165,7 @@ class Base {
   setMine() {
     this.areaMap.forEach((value, area) => {
       if (Math.random() < levelSetUp[`${this.level}`].chanceOfMiner) {
-        value.setvalue(2);
+        value.setValue(2);
       }
     });
   }
@@ -123,9 +178,6 @@ class Base {
 }
 
 const base = new Base(level);
-// myCanvas.width = base.levelSetUp[`${this.level}`].width * blockWidth * 1.5;
-// myCanvas.height = base.levelSetUp[`${this.level}`].heigh * blockHeigh * 1.5;
 base.setAreaMap();
 base.setMine();
 base.draw();
-console.log(base.getAreaMap());
