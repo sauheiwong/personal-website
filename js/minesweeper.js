@@ -10,6 +10,7 @@ const levelSetUp = {
     chanceOfMiner: 0.3,
     blockWidth: 150,
     blockHeigh: 150,
+    fontSize: 50,
   },
   medium: {
     width: 20,
@@ -17,6 +18,7 @@ const levelSetUp = {
     chanceOfMiner: 0.4,
     blockWidth: 75,
     blockHeigh: 75,
+    fontSize: 30,
   },
   hard: {
     width: 50,
@@ -24,36 +26,28 @@ const levelSetUp = {
     chanceOfMiner: 0.45,
     blockWidth: 30,
     blockHeigh: 30,
+    fontSize: 20,
   },
 };
+
+const colorMap = new Map([
+  [0, "gray"],
+  [1, "#999"],
+  [2, "#f00"],
+]);
 
 let level = "hard";
 
 let blockWidth = levelSetUp[`${level}`].blockWidth;
 let blockHeigh = levelSetUp[`${level}`].blockHeigh;
-
-function andWithTwoSet(set_a, set_b) {
-  return new Set([...set_a].filter((element) => set_b.has(element)));
-}
-
-function orWithTwoSet(set_a, set_b) {
-  return new Set([...set_a, ...set_b]);
-}
-
-function diffWithTwoSet(set_a, set_b) {
-  return new Set([...set_a].filter((element) => !set_b.has(element)));
-}
+let fontSize = levelSetUp[`${level}`].fontSize;
 
 class Block {
   constructor(x, y, value) {
     this.x = x;
     this.y = y;
     this.value = value; // 0 mean unknown, 1 mean empty, 2 mean mine
-    this.color = new Map([
-      [0, "gray"],
-      [1, "#999"],
-      [2, "#f00"],
-    ]);
+    this.text = "";
   }
   setValue(value) {
     this.value = value;
@@ -61,14 +55,26 @@ class Block {
   getValue() {
     return this.value;
   }
+  setText(text) {
+    this.text = text;
+  }
   draw() {
     ctx.beginPath();
     ctx.rect(this.x, this.y, blockWidth, blockHeigh);
-    ctx.fillStyle = this.color.get(this.value);
+    ctx.fillStyle = colorMap.get(this.value);
     ctx.fill();
     ctx.lineWidth = 1;
     ctx.strokeStyle = "black";
     ctx.stroke();
+    if (this.value === "0") {
+      ctx.closePath();
+      return;
+    }
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = `${fontSize}px Arial`;
+    ctx.fillStyle = "black";
+    ctx.fillText(this.text, this.x + blockWidth / 2, this.y + blockHeigh / 2);
     ctx.closePath();
   }
 }
@@ -105,9 +111,9 @@ class Base {
     ].filter((area) => {
       if (
         area.x >= 0 &&
-        area.x < levelSetUp[`${level}`].width - 1 &&
+        area.x <= levelSetUp[`${level}`].width - 1 &&
         area.y >= 0 &&
-        area.y < levelSetUp[`${level}`].heigh - 1 // filter out those block which is outside the base
+        area.y <= levelSetUp[`${level}`].heigh - 1 // filter out those block which is outside the base
       ) {
         return true;
       }
@@ -115,7 +121,7 @@ class Base {
     });
   }
 
-  getAreaWithEmpty(x, y) {
+  openAreaWithEmpty(x, y) {
     const checkedArray = [{ x, y, block: this.getArea(x, y) }]; // an array for the position of checked area
     const goToCheckArray = this.getNextBlock(x, y).filter(
       (block) => block.block.getValue() === 0
@@ -144,7 +150,43 @@ class Base {
         }
       });
     }
-    return checkedArray;
+    this.openCheckedBlock(checkedArray);
+  }
+
+  openCheckedBlock(checkedArray) {
+    checkedArray.forEach((block) => {
+      block.block.setText(this.getNumberOfBlock(block.x, block.y).toString());
+      block.block.setValue(1);
+    });
+    this.draw();
+  }
+
+  getNumberOfBlock(x, y) {
+    // return the number of mine is near to the block in position (x, y)
+    // 1, 2, 3
+    // 4, #, 6
+    // 7, 8, 9
+    return [
+      { x: x - 1, y: y - 1, block: this.getArea(x - 1, y - 1) }, // 1
+      { x: x, y: y - 1, block: this.getArea(x, y - 1) }, // 2
+      { x: x + 1, y: y - 1, block: this.getArea(x + 1, y - 1) }, // 3
+      { x: x - 1, y: y, block: this.getArea(x - 1, y) }, // 4
+      { x: x + 1, y: y, block: this.getArea(x + 1, y) }, // 6
+      { x: x - 1, y: y + 1, block: this.getArea(x - 1, y + 1) }, // 7
+      { x: x, y: y + 1, block: this.getArea(x, y + 1) }, // 8
+      { x: x + 1, y: y + 1, block: this.getArea(x + 1, y + 1) }, // 9
+    ].filter((area) => {
+      if (
+        area.x >= 0 &&
+        area.x <= levelSetUp[`${level}`].width - 1 &&
+        area.y >= 0 &&
+        area.y <= levelSetUp[`${level}`].heigh - 1 && // filter out those block which is outside the base
+        area.block.getValue() === 2 // filter out those block which is a mine
+      ) {
+        return true;
+      }
+      return false;
+    }).length;
   }
 
   setAreaMap() {
