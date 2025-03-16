@@ -36,8 +36,12 @@ const colorMap = new Map([
 
 let level = "easy";
 
-let blockWidth = levelSetUp[`${level}`].blockWidth;
-let blockHeigh = levelSetUp[`${level}`].blockHeigh;
+let blockWidth = () => {
+  return levelSetUp[`${level}`].blockWidth;
+};
+let blockHeigh = () => {
+  return levelSetUp[`${level}`].blockHeigh;
+};
 let fontSize = levelSetUp[`${level}`].fontSize;
 
 class Block {
@@ -58,7 +62,7 @@ class Block {
   }
   draw() {
     ctx.beginPath();
-    ctx.rect(this.x, this.y, blockWidth, blockHeigh);
+    ctx.rect(this.x, this.y, blockWidth(), blockHeigh());
     ctx.fillStyle = colorMap.get(this.value);
     ctx.fill();
     ctx.lineWidth = 1;
@@ -72,7 +76,11 @@ class Block {
     ctx.textBaseline = "middle";
     ctx.font = `${fontSize}px Arial`;
     ctx.fillStyle = "black";
-    ctx.fillText(this.text, this.x + blockWidth / 2, this.y + blockHeigh / 2);
+    ctx.fillText(
+      this.text,
+      this.x + blockWidth() / 2,
+      this.y + blockHeigh() / 2
+    );
     ctx.closePath();
   }
 }
@@ -82,12 +90,16 @@ class Base {
     this.level = level;
     this.areaMap = new Map([]);
     this.topLeftX =
-      (myCanvas.width - blockWidth * levelSetUp[`${this.level}`].width) / 2;
+      (myCanvas.width - blockWidth() * levelSetUp[`${this.level}`].width) / 2;
     this.topLeftY =
-      (myCanvas.height - blockHeigh * levelSetUp[`${this.level}`].heigh) / 2;
+      (myCanvas.height - blockHeigh() * levelSetUp[`${this.level}`].heigh) / 2;
     this.numberOfMine = 0;
     this.numberOfRemainEmpty =
       levelSetUp[`${level}`].width * levelSetUp[`${level}`].heigh;
+  }
+
+  setLevel(level) {
+    this.level = level;
   }
 
   getAreaMap() {
@@ -107,8 +119,8 @@ class Base {
   }
 
   getWhichBlockPoint(x, y) {
-    let row = Math.floor(x / (blockWidth / 2));
-    let colum = Math.floor(y / (blockHeigh / 2));
+    let row = Math.floor(x / (blockWidth() / 2));
+    let colum = Math.floor(y / (blockHeigh() / 2));
     return [row, colum];
   }
 
@@ -202,13 +214,14 @@ class Base {
   }
 
   setAreaMap() {
+    this.areaMap = new Map([]);
     for (let x = 0; x < levelSetUp[`${this.level}`].width; x++) {
       for (let y = 0; y < levelSetUp[`${this.level}`].heigh; y++) {
         this.areaMap.set(
           `${x},${y}`,
           new Block(
-            this.topLeftX + x * blockWidth,
-            this.topLeftY + y * blockHeigh,
+            this.topLeftX + x * blockWidth(),
+            this.topLeftY + y * blockHeigh(),
             0
           )
         );
@@ -233,6 +246,9 @@ class Base {
   }
 
   reset() {
+    this.numberOfMine = 0;
+    this.numberOfRemainEmpty =
+      levelSetUp[`${level}`].width * levelSetUp[`${level}`].heigh;
     this.setAreaMap();
     this.setMine();
     this.draw();
@@ -241,6 +257,15 @@ class Base {
 
 const base = new Base(level);
 base.reset();
+
+document.querySelectorAll(".level").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    level = btn.id.toString();
+    base.setLevel(level);
+    base.reset();
+    console.log(base.level);
+  });
+});
 
 myCanvas.addEventListener("click", function (event) {
   const rect = myCanvas.getBoundingClientRect();
