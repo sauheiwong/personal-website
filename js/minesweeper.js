@@ -65,7 +65,6 @@ class Block {
     ctx.strokeStyle = "black";
     ctx.stroke();
     if (this.text === "0") {
-      console.log("text is 0");
       ctx.closePath();
       return;
     }
@@ -99,8 +98,18 @@ class Base {
     return this.areaMap.get(`${x},${y}`);
   }
 
+  getNumberOfRemainEmpty() {
+    return this.numberOfRemainEmpty;
+  }
+
   setAreaMap(id, value) {
     this.areaMap.set(id, value);
+  }
+
+  getWhichBlockPoint(x, y) {
+    let row = Math.floor(x / (blockWidth / 2));
+    let colum = Math.floor(y / (blockHeigh / 2));
+    return [row, colum];
   }
 
   getNextBlock(x, y) {
@@ -124,6 +133,9 @@ class Base {
   }
 
   openAreaWithEmpty(x, y) {
+    if (this.getArea(x, y).getValue() === 1) {
+      return;
+    }
     const checkedArray = [{ x, y, block: this.getArea(x, y) }]; // an array for the position of checked area
     const goToCheckArray = this.getNextBlock(x, y).filter(
       (block) => block.block.getValue() === 0
@@ -229,3 +241,19 @@ class Base {
 
 const base = new Base(level);
 base.reset();
+
+myCanvas.addEventListener("click", function (event) {
+  const rect = myCanvas.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+
+  [row, colum] = base.getWhichBlockPoint(x, y);
+  if (base.getArea(row, colum).getValue() === 2) {
+    console.log("Boom🔥");
+    return;
+  }
+  base.openAreaWithEmpty(row, colum);
+  if (base.getNumberOfRemainEmpty() === 0) {
+    console.log("You Win!");
+  }
+});
