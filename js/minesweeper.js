@@ -42,7 +42,9 @@ let blockWidth = () => {
 let blockHeigh = () => {
   return levelSetUp[`${level}`].blockHeigh;
 };
-let fontSize = levelSetUp[`${level}`].fontSize;
+let fontSize = () => {
+  return levelSetUp[`${level}`].fontSize;
+};
 
 class Block {
   constructor(x, y, value) {
@@ -74,7 +76,7 @@ class Block {
     }
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.font = `${fontSize}px Arial`;
+    ctx.font = `${fontSize()}px Arial`;
     ctx.fillStyle = "black";
     ctx.fillText(
       this.text,
