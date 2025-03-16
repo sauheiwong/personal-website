@@ -1,5 +1,3 @@
-// debugger;
-
 const myCanvas = document.getElementById("myCanvas");
 const ctx = myCanvas.getContext("2d");
 
@@ -36,7 +34,7 @@ const colorMap = new Map([
   [2, "#f00"],
 ]);
 
-let level = "hard";
+let level = "easy";
 
 let blockWidth = levelSetUp[`${level}`].blockWidth;
 let blockHeigh = levelSetUp[`${level}`].blockHeigh;
@@ -66,7 +64,8 @@ class Block {
     ctx.lineWidth = 1;
     ctx.strokeStyle = "black";
     ctx.stroke();
-    if (this.value === "0") {
+    if (this.text === "0") {
+      console.log("text is 0");
       ctx.closePath();
       return;
     }
@@ -87,6 +86,9 @@ class Base {
       (myCanvas.width - blockWidth * levelSetUp[`${this.level}`].width) / 2;
     this.topLeftY =
       (myCanvas.height - blockHeigh * levelSetUp[`${this.level}`].heigh) / 2;
+    this.numberOfMine = 0;
+    this.numberOfRemainEmpty =
+      levelSetUp[`${level}`].width * levelSetUp[`${level}`].heigh;
   }
 
   getAreaMap() {
@@ -150,13 +152,11 @@ class Base {
         }
       });
     }
-    this.openCheckedBlock(checkedArray);
-  }
-
-  openCheckedBlock(checkedArray) {
     checkedArray.forEach((block) => {
-      block.block.setText(this.getNumberOfBlock(block.x, block.y).toString());
+      let text = this.getNumberOfBlock(block.x, block.y).toString();
+      block.block.setText(text);
       block.block.setValue(1);
+      this.numberOfRemainEmpty--;
     });
     this.draw();
   }
@@ -208,6 +208,8 @@ class Base {
     this.areaMap.forEach((value, area) => {
       if (Math.random() < levelSetUp[`${this.level}`].chanceOfMiner) {
         value.setValue(2);
+        this.numberOfMine++;
+        this.numberOfRemainEmpty--;
       }
     });
   }
@@ -217,9 +219,13 @@ class Base {
       value.draw();
     });
   }
+
+  reset() {
+    this.setAreaMap();
+    this.setMine();
+    this.draw();
+  }
 }
 
 const base = new Base(level);
-base.setAreaMap();
-base.setMine();
-base.draw();
+base.reset();
