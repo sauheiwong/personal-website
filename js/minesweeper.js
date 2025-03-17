@@ -31,7 +31,7 @@ const levelSetUp = {
 const colorMap = new Map([
   [0, "gray"],
   [1, "#999"],
-  [2, "#f00"],
+  [2, "gray"],
 ]);
 
 let level = "easy";
@@ -52,6 +52,10 @@ class Block {
     this.y = y;
     this.value = value; // 0 mean unknown, 1 mean empty, 2 mean mine
     this.text = "";
+    this.marked = false;
+  }
+  setMarked() {
+    this.marked = !this.marked;
   }
   setValue(value) {
     this.value = value;
@@ -65,7 +69,11 @@ class Block {
   draw() {
     ctx.beginPath();
     ctx.rect(this.x, this.y, blockWidth(), blockHeigh());
-    ctx.fillStyle = colorMap.get(this.value);
+    if (this.marked) {
+      ctx.fillStyle = "#f00";
+    } else {
+      ctx.fillStyle = colorMap.get(this.value);
+    }
     ctx.fill();
     ctx.lineWidth = 1;
     ctx.strokeStyle = "black";
@@ -269,18 +277,61 @@ document.querySelectorAll(".level").forEach((btn) => {
   });
 });
 
-myCanvas.addEventListener("click", function (event) {
+// document.addEventListener("contextmenu", function (event) {
+//   event.preventDefault();
+// });
+
+const finshMessageText = document.getElementById("finsh-message");
+const popUpContainer = document.getElementById("pop-up-container");
+
+document.getElementById("ok").addEventListener("click", () => {
+  editFinshContainer("reset");
+});
+
+const editFinshContainer = (result) => {
+  switch (result) {
+    case "reset":
+      popUpContainer.style.left = "-50%";
+      finshMessageText.textContent = "";
+      base.reset();
+      return;
+    case "win":
+      finshMessageText.textContent = "You Win!🎉";
+      break;
+    case "boom":
+      finshMessageText.textContent = "Boom!🔥 You Died☠️ 死💀";
+      break;
+  }
+  popUpContainer.style.left = "37.5%";
+};
+
+myCanvas.addEventListener("mousedown", function (event) {
   const rect = myCanvas.getBoundingClientRect();
   const x = event.clientX - rect.left;
   const y = event.clientY - rect.top;
 
   [row, colum] = base.getWhichBlockPoint(x, y);
-  if (base.getArea(row, colum).getValue() === 2) {
-    console.log("Boom🔥");
-    return;
+  let block = base.getArea(row, colum);
+  switch (event.button) {
+    case 0:
+      if (block.getValue() === 2) {
+        console.log("Boom🔥");
+        editFinshContainer("boom");
+        return;
+      }
+      base.openAreaWithEmpty(row, colum);
+      if (base.getNumberOfRemainEmpty() === 0) {
+        console.log("You Win!");
+        editFinshContainer("win");
+      }
+      break;
+    case 2:
+      if (block.getValue() === 1) {
+        return;
+      }
+      block.setMarked();
+      event.preventDefault();
+      break;
   }
-  base.openAreaWithEmpty(row, colum);
-  if (base.getNumberOfRemainEmpty() === 0) {
-    console.log("You Win!");
-  }
+  base.draw();
 });
