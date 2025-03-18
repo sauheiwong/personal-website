@@ -27,6 +27,7 @@ const levelSetUp = {
     fontSize: 20,
   },
 };
+let firstClick = true;
 
 const colorMap = new Map([
   [0, "gray"],
@@ -53,6 +54,10 @@ class Block {
     this.value = value; // 0 mean unknown, 1 mean empty, 2 mean mine
     this.text = "";
     this.marked = false;
+    this.show = false;
+  }
+  showAnswer() {
+    this.show = true;
   }
   setMarked() {
     this.marked = !this.marked;
@@ -73,6 +78,9 @@ class Block {
       ctx.fillStyle = "#f00";
     } else {
       ctx.fillStyle = colorMap.get(this.value);
+    }
+    if (this.show && this.value === 2) {
+      ctx.fillStyle = "#000";
     }
     ctx.fill();
     ctx.lineWidth = 1;
@@ -273,13 +281,12 @@ document.querySelectorAll(".level").forEach((btn) => {
     level = btn.id.toString();
     base.setLevel(level);
     base.reset();
-    console.log(base.level);
   });
 });
 
-// document.addEventListener("contextmenu", function (event) {
-//   event.preventDefault();
-// });
+document.addEventListener("contextmenu", function (event) {
+  event.preventDefault();
+});
 
 const finshMessageText = document.getElementById("finsh-message");
 const popUpContainer = document.getElementById("pop-up-container");
@@ -294,6 +301,7 @@ const editFinshContainer = (result) => {
       popUpContainer.style.left = "-50%";
       finshMessageText.textContent = "";
       base.reset();
+      firstClick = true;
       return;
     case "win":
       finshMessageText.textContent = "You Win!🎉";
@@ -313,20 +321,36 @@ myCanvas.addEventListener("mousedown", function (event) {
   [row, colum] = base.getWhichBlockPoint(x, y);
   let block = base.getArea(row, colum);
   switch (event.button) {
-    case 0:
-      if (block.getValue() === 2) {
-        console.log("Boom🔥");
+    case 0: // left click
+      if (block.getValue() === 2 && !firstClick) {
+        // if click a mine
+        base.getAreaMap().forEach((value, area) => {
+          value.showAnswer();
+          value.draw();
+        });
         editFinshContainer("boom");
         return;
       }
+      if (block.getValue() === 2 && firstClick) {
+        // if the first click a mine
+        while (base.getArea(row, colum).getValue() === 2) {
+          base.reset();
+        }
+        firstClick = false;
+      }
       base.openAreaWithEmpty(row, colum);
       if (base.getNumberOfRemainEmpty() === 0) {
-        console.log("You Win!");
+        // if all empty area have been clicked
+        base.getAreaMap().forEach((value, area) => {
+          value.showAnswer();
+          value.draw();
+        });
         editFinshContainer("win");
       }
       break;
-    case 2:
+    case 2: // right click
       if (block.getValue() === 1) {
+        // skip the opened area
         return;
       }
       block.setMarked();
