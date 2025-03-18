@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tommy Personal Website</title>
+    <link href="css/nav.css" rel="stylesheet" />
+    <link href="css/body.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/minesweeper.css" />
+    <script defer src="js/minesweeper.js"></script>
+  </head>
+  <body>
+    <div>
+      <nav>
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/habit.html">Habit</a></li>
+          <li><a href="/reading.html">Reading</a></li>
+          <li><a href="/game_center.html">Game Center</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="container">
+      <canvas id="myCanvas" width="1500" height="1500"></canvas>
+      <div id="pop-up-container">
+        <div class="pop-up">
+          <div id="finsh-message-container">
+            <p id="finsh-message"></p>
+          </div>
+          <div id="ok" class="btn">
+            <p>OK</p>
+          </div>
+        </div>
+      </div>
+      <div class="level-container">
+        <div class="level" id="easy">Easy</div>
+        <div class="level" id="medium">Medium</div>
+        <div class="level" id="hard">Hard</div>
+      </div>
+    </div>
+  </body>
+</html>
