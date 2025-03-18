@@ -339,6 +339,7 @@ myCanvas.addEventListener("mousedown", function (event) {
         firstClick = false;
       }
       base.openAreaWithEmpty(row, colum);
+      firstClick = false;
       if (base.getNumberOfRemainEmpty() === 0) {
         // if all empty area have been clicked
         base.getAreaMap().forEach((value, area) => {
