@@ -7,10 +7,37 @@
   gap: 10px;
 }
 
+.bottom {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 5px solid var(--primary-color);
+  border-radius: 5px;
+  background-color: var(--secondary-color);
+  padding: 5px 15px;
+  gap: 100px;
+}
+
+.tips-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 50px;
+}
+
+.tips {
+  justify-self: center;
+  align-self: center;
+  border: 5px solid var(--primary-color);
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  padding: 5px 10px;
+}
+
 .level-container {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 100px;
+  gap: 50px;
+  padding: 0px 15px;
 }
 
 .level {
@@ -20,7 +47,7 @@
   align-self: center;
   border: 5px solid var(--primary-color);
   border-radius: 10px;
-  background-color: var(--secondary-color);
+  background-color: var(--primary-color);
   display: flex;
   justify-content: center;
   padding: 5px 10px;
