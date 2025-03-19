@@ -13,7 +13,7 @@ const levelSetUp = {
   medium: {
     width: 20,
     heigh: 20,
-    chanceOfMiner: 0.2,
+    chanceOfMiner: 0.4,
     blockWidth: 75,
     blockHeigh: 75,
     fontSize: 30,
@@ -199,7 +199,6 @@ class Base {
     }
     checkedArray.forEach((block) => {
       let text = this.getNumberOfMine(block.x, block.y).toString();
-      console.log(`${block.x}, ${block.y} has ${text} near it.`);
       block.block.setText(text);
       block.block.setValue(1);
       this.numberOfRemainEmpty--;
