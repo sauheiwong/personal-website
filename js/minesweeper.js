@@ -13,7 +13,7 @@ const levelSetUp = {
   medium: {
     width: 20,
     heigh: 20,
-    chanceOfMiner: 0.4,
+    chanceOfMiner: 0.2,
     blockWidth: 75,
     blockHeigh: 75,
     fontSize: 30,
@@ -32,7 +32,7 @@ let firstClick = true;
 const colorMap = new Map([
   [0, "gray"],
   [1, "#999"],
-  [2, "gray"],
+  [2, "#0f0"],
 ]);
 
 let level = "easy";
@@ -168,7 +168,8 @@ class Base {
     }
     const checkedArray = [{ x, y, block: this.getArea(x, y) }]; // an array for the position of checked area
     const goToCheckArray = this.getNextBlock(x, y).filter(
-      (block) => block.block.getValue() === 0
+      (block) =>
+        block.block.getValue() === 0 && this.getNumberOfMine(x, y) === 0
     ); // an array for the position of going to check area with empty
     while (goToCheckArray.length != 0) {
       let block = goToCheckArray.pop();
@@ -182,20 +183,23 @@ class Base {
       }
       checkedArray.push(block); // push new block into checked array
       let nextBlockWithEmpty = this.getNextBlock(block.x, block.y).filter(
-        (nextBlock) => nextBlock.block.getValue() === 0
-      ); // get the block, which is next to position (x, y), and it is empty
+        (nextBlock) =>
+          nextBlock.block.getValue() === 0 &&
+          this.getNumberOfMine(block.x, block.y) === 0
+      ); // get the block, which is next to position (x, y), with empty and does not have a mine near it.
       nextBlockWithEmpty.forEach((nextBlock) => {
         if (
           !goToCheckArray.some(
-            (checked) => checked.x === nextBlock.x && checked.y === nextBlock.y
-          ) // if near block is in goToCheck array, pass it
+            (checked) => checked.x === nextBlock.x && checked.y === nextBlock.y // if near block is in goToCheck array, pass it
+          )
         ) {
           goToCheckArray.push(nextBlock); // push the new block, which is next to position (x, y), into goToCheck array
         }
       });
     }
     checkedArray.forEach((block) => {
-      let text = this.getNumberOfBlock(block.x, block.y).toString();
+      let text = this.getNumberOfMine(block.x, block.y).toString();
+      console.log(`${block.x}, ${block.y} has ${text} near it.`);
       block.block.setText(text);
       block.block.setValue(1);
       this.numberOfRemainEmpty--;
@@ -203,7 +207,7 @@ class Base {
     this.draw();
   }
 
-  getNumberOfBlock(x, y) {
+  getNumberOfMine(x, y) {
     // return the number of mine is near to the block in position (x, y)
     // 1, 2, 3
     // 4, #, 6
@@ -299,15 +303,15 @@ const editFinshContainer = (result) => {
   switch (result) {
     case "reset":
       popUpContainer.style.left = "-50%";
-      finshMessageText.textContent = "";
+      finshMessageText.innerHTML = "";
       base.reset();
       firstClick = true;
       return;
     case "win":
-      finshMessageText.textContent = "You Win!🎉";
+      finshMessageText.innerHTML = "You Win!🎉";
       break;
     case "boom":
-      finshMessageText.textContent = "Boom!🔥 You Died☠️ 死💀";
+      finshMessageText.innerHTML = "Boom!🔥<br>You Died☠️ <br>死💀";
       break;
   }
   popUpContainer.style.left = "37.5%";
