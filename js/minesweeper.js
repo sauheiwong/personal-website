@@ -142,13 +142,20 @@ class Base {
     return [row, colum];
   }
 
-  getNextBlock(x, y) {
+  getNearBlock(x, y) {
     // return an array of block which is next to the block in position (x, y)
+    // 1, 2, 3
+    // 4, #, 6
+    // 7, 8, 9
     return [
-      { x: x, y: y - 1, block: this.getArea(x, y - 1) }, // top
-      { x: x, y: y + 1, block: this.getArea(x, y + 1) }, // down
-      { x: x - 1, y: y, block: this.getArea(x - 1, y) }, // left
-      { x: x + 1, y: y, block: this.getArea(x + 1, y) }, // right
+      { x: x - 1, y: y - 1, block: this.getArea(x - 1, y - 1) }, // 1
+      { x: x, y: y - 1, block: this.getArea(x, y - 1) }, // 2
+      { x: x + 1, y: y - 1, block: this.getArea(x + 1, y - 1) }, // 3
+      { x: x - 1, y: y, block: this.getArea(x - 1, y) }, // 4
+      { x: x + 1, y: y, block: this.getArea(x + 1, y) }, // 6
+      { x: x - 1, y: y + 1, block: this.getArea(x - 1, y + 1) }, // 7
+      { x: x, y: y + 1, block: this.getArea(x, y + 1) }, // 8
+      { x: x + 1, y: y + 1, block: this.getArea(x + 1, y + 1) }, // 9
     ].filter((area) => {
       if (
         area.x >= 0 &&
@@ -167,7 +174,7 @@ class Base {
       return;
     }
     const checkedArray = [{ x, y, block: this.getArea(x, y) }]; // an array for the position of checked area
-    const goToCheckArray = this.getNextBlock(x, y).filter(
+    const goToCheckArray = this.getNearBlock(x, y).filter(
       (block) =>
         block.block.getValue() === 0 && this.getNumberOfMine(x, y) === 0
     ); // an array for the position of going to check area with empty
@@ -182,18 +189,20 @@ class Base {
         continue;
       }
       checkedArray.push(block); // push new block into checked array
-      let nextBlockWithEmpty = this.getNextBlock(block.x, block.y).filter(
-        (nextBlock) =>
-          nextBlock.block.getValue() === 0 &&
-          this.getNumberOfMine(block.x, block.y) === 0
-      ); // get the block, which is next to position (x, y), with empty and does not have a mine near it.
-      nextBlockWithEmpty.forEach((nextBlock) => {
+      if (this.getNumberOfMine(block.x, block.y) !== 0) {
+        // if there are mine(s) near that block, then do not check the near block
+        continue;
+      }
+      let nearBlockWithEmpty = this.getNearBlock(block.x, block.y).filter(
+        (nearBlock) => nearBlock.block.getValue() === 0
+      ); // get the block, which is near to position (x, y), with empty
+      nearBlockWithEmpty.forEach((nearBlock) => {
         if (
           !goToCheckArray.some(
-            (checked) => checked.x === nextBlock.x && checked.y === nextBlock.y // if near block is in goToCheck array, pass it
+            (checked) => checked.x === nearBlock.x && checked.y === nearBlock.y // if near block is in goToCheck array, pass it
           )
         ) {
-          goToCheckArray.push(nextBlock); // push the new block, which is next to position (x, y), into goToCheck array
+          goToCheckArray.push(nearBlock); // push the new block, which is near to position (x, y), into goToCheck array
         }
       });
     }
@@ -208,30 +217,8 @@ class Base {
 
   getNumberOfMine(x, y) {
     // return the number of mine is near to the block in position (x, y)
-    // 1, 2, 3
-    // 4, #, 6
-    // 7, 8, 9
-    return [
-      { x: x - 1, y: y - 1, block: this.getArea(x - 1, y - 1) }, // 1
-      { x: x, y: y - 1, block: this.getArea(x, y - 1) }, // 2
-      { x: x + 1, y: y - 1, block: this.getArea(x + 1, y - 1) }, // 3
-      { x: x - 1, y: y, block: this.getArea(x - 1, y) }, // 4
-      { x: x + 1, y: y, block: this.getArea(x + 1, y) }, // 6
-      { x: x - 1, y: y + 1, block: this.getArea(x - 1, y + 1) }, // 7
-      { x: x, y: y + 1, block: this.getArea(x, y + 1) }, // 8
-      { x: x + 1, y: y + 1, block: this.getArea(x + 1, y + 1) }, // 9
-    ].filter((area) => {
-      if (
-        area.x >= 0 &&
-        area.x <= levelSetUp[`${level}`].width - 1 &&
-        area.y >= 0 &&
-        area.y <= levelSetUp[`${level}`].heigh - 1 && // filter out those block which is outside the base
-        area.block.getValue() === 2 // filter out those block which is a mine
-      ) {
-        return true;
-      }
-      return false;
-    }).length;
+    return this.getNearBlock(x, y).filter((area) => area.block.getValue() === 2)
+      .length;
   }
 
   setAreaMap() {
