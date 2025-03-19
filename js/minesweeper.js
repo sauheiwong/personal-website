@@ -32,7 +32,7 @@ let firstClick = true;
 const colorMap = new Map([
   [0, "gray"],
   [1, "#999"],
-  [2, "#0f0"],
+  [2, "gray"],
 ]);
 
 let level = "easy";
