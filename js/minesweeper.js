@@ -5,7 +5,7 @@ const levelSetUp = {
   easy: {
     width: 10,
     heigh: 10,
-    chanceOfMiner: 0.3,
+    chanceOfMiner: 0.1,
     blockWidth: 150,
     blockHeigh: 150,
     fontSize: 50,
@@ -13,7 +13,7 @@ const levelSetUp = {
   medium: {
     width: 20,
     heigh: 20,
-    chanceOfMiner: 0.4,
+    chanceOfMiner: 0.2,
     blockWidth: 75,
     blockHeigh: 75,
     fontSize: 30,
@@ -21,7 +21,7 @@ const levelSetUp = {
   hard: {
     width: 50,
     heigh: 50,
-    chanceOfMiner: 0.45,
+    chanceOfMiner: 0.3,
     blockWidth: 30,
     blockHeigh: 30,
     fontSize: 20,
