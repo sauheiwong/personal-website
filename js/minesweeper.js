@@ -55,6 +55,7 @@ class Block {
     this.text = "";
     this.marked = false;
     this.show = false;
+    this.pointed = false;
   }
   showAnswer() {
     this.show = true;
@@ -83,8 +84,13 @@ class Block {
       ctx.fillStyle = "#000";
     }
     ctx.fill();
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = "black";
+    if (this.pointed) {
+      ctx.strokeStyle = "white";
+      ctx.lineWidth = 5;
+    } else {
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 1;
+    }
     ctx.stroke();
     if (this.text === "0") {
       ctx.closePath();
@@ -347,5 +353,18 @@ myCanvas.addEventListener("mousedown", function (event) {
       event.preventDefault();
       break;
   }
+  base.draw();
+});
+
+myCanvas.addEventListener("mousemove", (event) => {
+  const rect = myCanvas.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+
+  [row, colum] = base.getWhichBlockPoint(x, y);
+  base.areaMap.forEach((value, area) => {
+    value.pointed = false;
+  });
+  base.getArea(row, colum).pointed = true;
   base.draw();
 });
