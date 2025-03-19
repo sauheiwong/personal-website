@@ -273,6 +273,7 @@ class Base {
     this.setAreaMap();
     this.setMine();
     this.draw();
+    firstClick = true;
   }
 }
 
@@ -303,8 +304,6 @@ const editFinshContainer = (result) => {
     case "reset":
       popUpContainer.style.left = "-50%";
       finshMessageText.innerHTML = "";
-      base.reset();
-      firstClick = true;
       return;
     case "win":
       finshMessageText.innerHTML = "You Win!🎉";
