@@ -203,11 +203,13 @@ d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0
       new imageContainer(divImageContainer, this.imagesMap)
     );
     //
-    // show all the element
-    this.classMap.forEach((element, name) => {
-      console.log(element);
-      element.show();
-    });
+    // show all the element before some time
+    setTimeout(() => {
+      this.classMap.forEach((element, name) => {
+        console.log(element);
+        element.show();
+      });
+    }, 500);
   }
   hide() {
     this.classMap.forEach((element, name) => {
@@ -228,7 +230,7 @@ const skiCard = new card("Skiing", imgSki);
 const cardMap = new Map([[0, skiCard]]);
 
 let cardID = 0;
-cardMap.get(cardID).show();
+// cardMap.get(cardID).show();
 
 document
   .querySelector(".image-container #right-click")
