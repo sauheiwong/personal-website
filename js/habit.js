@@ -1,46 +1,3 @@
-// const titleElement = document.createElement("h2");
-// titleElement.classList += "title";
-// const divImageContainer = document.createElement("div");
-// divImageContainer.classList += "image-container";
-// const divLeftClick = document.createElement("div");
-// divLeftClick.classList += "click-div";
-// divLeftClick.id = "left-click";
-// divLeftClick.innerHTML += `
-// <svg
-//     xmlns="http://www.w3.org/2000/svg"
-//     width="50"
-//     height="50"
-//     fill="currentColor"
-//     class="bi bi-arrow-left"
-//     viewBox="0 0 16 16"
-// >
-// <path
-// fill-rule="evenodd"
-// d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"
-// />
-// </svg>
-// `;
-// divImageContainer.appendChild(divLeftClick);
-// const divRightClick = document.createElement("div");
-// divRightClick.classList += "click-div";
-// divRightClick.id = "right-click";
-// divRightClick.innerHTML += `
-// <svg
-//     xmlns="http://www.w3.org/2000/svg"
-//     width="50"
-//     height="50"
-//     fill="currentColor"
-//     class="bi bi-arrow-right"
-//     viewBox="0 0 16 16"
-// >
-//     <path
-//     fill-rule="evenodd"
-//     d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"
-//     />
-// </svg>
-// `;
-// divImageContainer.appendChild(divRightClick);
-
 class title {
   constructor(titleElement, title) {
     this.titleElement = titleElement;
@@ -96,14 +53,35 @@ class imageContainer {
       this.promptContainer = document.createElement("div");
       this.promptContainer.classList += "txt-in-img";
       this.promptContainer.innerHTML += this.imagesMap.get(this.imageID).prompt;
-      //   this.imageElement.style.objectFit = "cover";
+      this.imageElement.style.right = "0%";
       this.imageElement.addEventListener("mouseenter", () => {
-        document.querySelector(".txt-in-img").style.display = "block";
         this.imageElement.style.right = "-20%";
+        this.promptContainer.style.display = "block";
+        let opacity = 0;
+        clearInterval(id);
+        id = setInterval(() => {
+          if (opacity === 100) {
+            // when opcaity is 100, stop it
+            clearInterval(id);
+          } else {
+            opacity++;
+            this.promptContainer.style.opacity = `${opacity / 100}`; // the container will come out
+          }
+        }, 7);
       });
       this.imageElement.addEventListener("mouseleave", () => {
-        document.querySelector(".txt-in-img").style.display = "none";
-        document.querySelector(".img").style.right = "0%";
+        this.imageElement.style.right = "0%";
+        let opacity = 100;
+        clearInterval(id);
+        id = setInterval(() => {
+          if (opacity === 0) {
+            // when opcaity is 0, stop it
+            clearInterval(id);
+          } else {
+            opacity--;
+            this.promptContainer.style.opacity = `${opacity / 100}`; // the container will come out
+          }
+        }, 7);
       });
       this.container.appendChild(this.promptContainer);
     }
@@ -113,6 +91,7 @@ class imageContainer {
     id = setInterval(() => {
       if (opacity === 100) {
         // when opcaity is 100, stop it
+        this.promptContainer.style.opacity = "0";
         clearInterval(id);
       } else {
         opacity++;
@@ -198,11 +177,14 @@ class card {
   }
   show() {
     const container = document.querySelector(".container");
+    setTimeout(() => {
+      let i = null;
+    }, 500);
+    //
     // clear all the element inside a card
     while (container.lastChild.className !== "click-div") {
       container.removeChild(container.lastChild);
     }
-    //
     // basic elements of a card
     const titleElement = document.createElement("h2");
     titleElement.classList += "title";
@@ -425,7 +407,7 @@ const cardMap = new Map([
   [2, MusicCard],
 ]);
 
-let cardID = 0;
+let cardID = 1;
 cardMap.get(cardID).show();
 
 document.querySelector("#Next-habit").addEventListener("click", () => {
