@@ -117,3 +117,20 @@
   display: none;
   opacity: 0;
 }
+
+#player-switch {
+  position: absolute;
+  right: 5%;
+  width: 60px;
+  height: 60px;
+  background-color: var(--secondary-color);
+  border-radius: 15px;
+  border: 5px solid var(--primary-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#player-switch:hover {
+  background-color: var(--highlight-color);
+}

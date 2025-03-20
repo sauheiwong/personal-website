@@ -1,3 +1,48 @@
+// background music player
+let tag = document.createElement("script");
+tag.src = "https://www.youtube.com/iframe_api";
+let firstScriptTag = document.getElementsByTagName("script")[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+let player;
+let playStatus = false; // false mean stop the music
+function onYouTubeIframeAPIReady() {
+  player = new YT.Player("player", {
+    height: "0",
+    width: "0",
+    videoId: "HxkCT-vtm_I",
+    playerVars: {
+      playsinline: 1,
+      loop: 1,
+      playlist: "HxkCT-vtm_I",
+    },
+    events: {
+      onReady: onPlayerReady,
+      onStateChange: onPlayerStateChange,
+    },
+  });
+}
+
+function onPlayerReady(event) {
+  event.target.pauseVideo();
+}
+
+function onPlayerStateChange(event) {
+  // 處理播放器狀態變化
+  if (event.data == YT.PlayerState.ENDED) {
+    //影片播放結束時的動作
+  }
+}
+
+document.querySelector("#player-switch").addEventListener("click", () => {
+  if (playStatus) {
+    player.pauseVideo();
+  } else {
+    player.playVideo();
+  }
+  playStatus = !playStatus;
+});
+
 class title {
   constructor(titleElement, title) {
     this.titleElement = titleElement;
@@ -45,7 +90,8 @@ class imageContainer {
     // if the image has a link, then add a click event
     if ("link" in this.imagesMap.get(this.imageID)) {
       this.imageElement.addEventListener("click", () => {
-        window.open(this.imagesMap.get(this.imageID).link, "_blank");
+        PlayerState = true;
+        player.loadVideoById(this.imagesMap.get(this.imageID).link); // player the music
       });
     }
     //
@@ -54,44 +100,49 @@ class imageContainer {
       this.promptContainer.classList += "txt-in-img";
       this.promptContainer.innerHTML += this.imagesMap.get(this.imageID).prompt;
       this.imageElement.style.right = "0%";
-      this.imageElement.addEventListener("mouseenter", () => {
-        this.imageElement.style.right = "-20%";
-        this.promptContainer.style.display = "block";
-        let opacity = 0;
-        clearInterval(id);
-        id = setInterval(() => {
-          if (opacity === 100) {
-            // when opcaity is 100, stop it
-            clearInterval(id);
-          } else {
-            opacity++;
-            this.promptContainer.style.opacity = `${opacity / 100}`; // the container will come out
-          }
-        }, 7);
-      });
-      this.imageElement.addEventListener("mouseleave", () => {
-        this.imageElement.style.right = "0%";
-        let opacity = 100;
-        clearInterval(id);
-        id = setInterval(() => {
-          if (opacity === 0) {
-            // when opcaity is 0, stop it
-            clearInterval(id);
-          } else {
-            opacity--;
-            this.promptContainer.style.opacity = `${opacity / 100}`; // the container will come out
-          }
-        }, 7);
-      });
       this.container.appendChild(this.promptContainer);
+      setTimeout(() => {
+        this.imageElement.addEventListener("mouseenter", () => {
+          this.imageElement.style.right = "-20%";
+          this.promptContainer.style.display = "block";
+          let opacity = 0;
+          clearInterval(id);
+          id = setInterval(() => {
+            if (opacity === 100) {
+              // when opcaity is 100, stop it
+              clearInterval(id);
+            } else {
+              opacity++;
+              this.promptContainer.style.opacity = `${opacity / 100}`; // the container will come out
+            }
+          }, 7);
+        });
+        this.imageElement.addEventListener("mouseleave", () => {
+          this.imageElement.style.right = "0%";
+          let opacity = 100;
+          clearInterval(id);
+          id = setInterval(() => {
+            if (opacity === 0) {
+              // when opcaity is 0, stop it
+              clearInterval(id);
+            } else {
+              opacity--;
+              this.promptContainer.style.opacity = `${opacity / 100}`; // the container will come out
+            }
+          }, 7);
+        });
+      }, 10);
     }
     this.container.appendChild(this.imageElement); // add to it's container
     let childrenArray = [...this.container.children]; // get all children element
     clearInterval(id);
+    opacity = 0;
     id = setInterval(() => {
       if (opacity === 100) {
         // when opcaity is 100, stop it
-        this.promptContainer.style.opacity = "0";
+        if ("prompt" in this.imagesMap.get(this.imageID)) {
+          this.promptContainer.style.opacity = "0";
+        }
         clearInterval(id);
       } else {
         opacity++;
@@ -133,30 +184,57 @@ class imageContainer {
     imgNext.id = `${this.imageID}_image`;
     imgNext.src = this.imagesMap.get(this.imageID).src;
     imgNext.style.animation = "showUp 1s ease forwards";
+    imgNext.style.right = "0%";
     if ("link" in this.imagesMap.get(this.imageID)) {
       imgNext.addEventListener("click", () => {
-        window.open(this.imagesMap.get(this.imageID).link, "_blank");
+        playStatus = true;
+        player.loadVideoById(this.imagesMap.get(this.imageID).link); // play the music
       });
     }
     //
     if ("prompt" in this.imagesMap.get(this.imageID)) {
+      let id = null;
       let NewpromptContainer = document.createElement("div");
       NewpromptContainer.classList += "txt-in-img";
       NewpromptContainer.innerHTML += this.imagesMap.get(this.imageID).prompt;
-      imgNext.addEventListener("mouseenter", () => {
-        document.querySelector(".txt-in-img").style.display = "block";
-        document.querySelector(".img").style.right = "-20%";
-      });
-      imgNext.addEventListener("mouseleave", () => {
-        document.querySelector(".txt-in-img").style.display = "none";
-        document.querySelector(".img").style.right = "0%";
-      });
+      setTimeout(() => {
+        imgNext.addEventListener("mouseenter", () => {
+          imgNext.style.right = "-20%";
+          NewpromptContainer.style.display = "block";
+          let opacity = 0;
+          clearInterval(id);
+          id = setInterval(() => {
+            if (opacity === 100) {
+              // when opcaity is 100, stop it
+              clearInterval(id);
+            } else {
+              opacity++;
+              NewpromptContainer.style.opacity = `${opacity / 100}`; // the container will come out
+            }
+          }, 7);
+        });
+        imgNext.addEventListener("mouseleave", () => {
+          imgNext.style.right = "0%";
+          let opacity = 100;
+          clearInterval(id);
+          id = setInterval(() => {
+            if (opacity === 0) {
+              // when opcaity is 0, stop it
+              clearInterval(id);
+            } else {
+              opacity--;
+              NewpromptContainer.style.opacity = `${opacity / 100}`; // the container will come out
+            }
+          }, 7);
+        });
+      }, 10);
       this.container.appendChild(NewpromptContainer);
+      this.container.removeChild(this.promptContainer);
+      this.promptContainer = NewpromptContainer;
     }
     this.container.appendChild(imgNext);
     this.imageElement.style.animation = "animation: hide 1s ease forwards;"; // the previous img will disappear slowly at the same time
     this.container.removeChild(this.imageElement); // remove the previous img elemnt
-    this.container.removeChild(this.promptContainer);
     this.imageElement = imgNext; // set the new img element to be imageElement
   }
   leftClick() {
@@ -369,28 +447,42 @@ const imgMusic = new Map([
     0,
     {
       src: "img/god-ish.jpeg",
-      link: "https://www.youtube.com/embed/EHBFKhLUVig",
+      link: "EHBFKhLUVig",
     },
   ],
   [
     1,
     {
       src: "img/konton-boggie.jpeg",
-      link: "https://www.youtube.com/embed/1Swg-aBO9eY",
+      link: "1Swg-aBO9eY",
     },
   ],
   [
     2,
     {
       src: "img/Tetoris.png",
-      link: "https://www.youtube.com/embed/Soy4jGPHr3g",
+      link: "Soy4jGPHr3g",
     },
   ],
   [
     3,
     {
       src: "img/rabbit-hole.jpeg",
-      link: "https://www.youtube.com/embed/eSW2LVbPThw",
+      link: "eSW2LVbPThw",
+    },
+  ],
+  [
+    4,
+    {
+      src: "img/moon.jpg",
+      link: "HxkCT-vtm_I",
+    },
+  ],
+  [
+    5,
+    {
+      src: "img/two-face-lover.png",
+      link: "b_cuMcDWwsI",
     },
   ],
 ]);
@@ -407,7 +499,7 @@ const cardMap = new Map([
   [2, MusicCard],
 ]);
 
-let cardID = 1;
+let cardID = 2;
 cardMap.get(cardID).show();
 
 document.querySelector("#Next-habit").addEventListener("click", () => {
