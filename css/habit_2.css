@@ -12,7 +12,7 @@
   position: absolute;
   left: -50%;
   transform: translateY(-50%);
-  transition: left 1s ease-in-out;
+  transition: left 0.75s ease-in-out;
 }
 
 .image-container {
@@ -84,6 +84,7 @@
   object-fit: contain;
   top: 0;
   z-index: 0;
+  transition: right 0.75s ease-in-out;
 }
 
 .txt-container {
@@ -96,6 +97,22 @@
   bottom: 5%;
   right: -50%;
   transform: translateY(50%);
-  transition: right 1s ease-in-out;
+  transition: right 0.75s ease-in-out;
   font-size: larger;
+}
+
+.txt-in-img {
+  position: absolute;
+  bottom: 25%;
+  right: 50%;
+  transform: translateY(50%);
+  transition: right 0.75s ease-in-out;
+  width: 50%;
+  height: 50%;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  display: none;
 }

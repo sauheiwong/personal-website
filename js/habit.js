@@ -75,6 +75,7 @@ class imageContainer {
     this.imagesMap = imagesMap;
     this.imageID = 0;
     this.imageElement = null;
+    this.promptContainer = null;
   }
   show() {
     let id = null;
@@ -83,8 +84,29 @@ class imageContainer {
     this.imageElement = document.createElement("img");
     this.imageElement.classList += "img";
     this.imageElement.id = `${this.imageID}-image`;
-    this.imageElement.src = this.imagesMap.get(this.imageID);
+    this.imageElement.src = this.imagesMap.get(this.imageID).src;
+    // if the image has a link, then add a click event
+    if ("link" in this.imagesMap.get(this.imageID)) {
+      this.imageElement.addEventListener("click", () => {
+        window.open(this.imagesMap.get(this.imageID).link, "_blank");
+      });
+    }
     //
+    if ("prompt" in this.imagesMap.get(this.imageID)) {
+      this.promptContainer = document.createElement("div");
+      this.promptContainer.classList += "txt-in-img";
+      this.promptContainer.innerHTML += this.imagesMap.get(this.imageID).prompt;
+      //   this.imageElement.style.objectFit = "cover";
+      this.imageElement.addEventListener("mouseenter", () => {
+        document.querySelector(".txt-in-img").style.display = "block";
+        this.imageElement.style.right = "-20%";
+      });
+      this.imageElement.addEventListener("mouseleave", () => {
+        document.querySelector(".txt-in-img").style.display = "none";
+        document.querySelector(".img").style.right = "0%";
+      });
+      this.container.appendChild(this.promptContainer);
+    }
     this.container.appendChild(this.imageElement); // add to it's container
     let childrenArray = [...this.container.children]; // get all children element
     clearInterval(id);
@@ -100,7 +122,7 @@ class imageContainer {
           (element) => (element.style.opacity = `${opacity / 100}`)
         );
       }
-    }, 1);
+    }, 7);
   }
   hide() {
     let id = null;
@@ -112,13 +134,13 @@ class imageContainer {
       if (opacity === 0) {
         clearInterval(id);
       } else {
-        opacity -= 5;
+        opacity -= 1;
         this.container.style.opacity = `${opacity / 100}`;
         childrenArray.forEach(
           (element) => (element.style.opacity = `${opacity / 100}`)
         );
       }
-    }, 1);
+    }, 7);
   }
   rightClick() {
     this.imageID++;
@@ -130,12 +152,32 @@ class imageContainer {
     // set the css property so that it will come out slowly
     imgNext.classList += "img";
     imgNext.id = `${this.imageID}_image`;
-    imgNext.src = this.imagesMap.get(this.imageID);
+    imgNext.src = this.imagesMap.get(this.imageID).src;
     imgNext.style.animation = "showUp 1s ease forwards";
+    if ("link" in this.imagesMap.get(this.imageID)) {
+      imgNext.addEventListener("click", () => {
+        window.open(this.imagesMap.get(this.imageID).link, "_blank");
+      });
+    }
     //
+    if ("prompt" in this.imagesMap.get(this.imageID)) {
+      let NewpromptContainer = document.createElement("div");
+      NewpromptContainer.classList += "txt-in-img";
+      NewpromptContainer.innerHTML += this.imagesMap.get(this.imageID).prompt;
+      imgNext.addEventListener("mouseenter", () => {
+        document.querySelector(".txt-in-img").style.display = "block";
+        document.querySelector(".img").style.right = "-20%";
+      });
+      imgNext.addEventListener("mouseleave", () => {
+        document.querySelector(".txt-in-img").style.display = "none";
+        document.querySelector(".img").style.right = "0%";
+      });
+      this.container.appendChild(NewpromptContainer);
+    }
     this.container.appendChild(imgNext);
     this.imageElement.style.animation = "animation: hide 1s ease forwards;"; // the previous img will disappear slowly at the same time
     this.container.removeChild(this.imageElement); // remove the previous img elemnt
+    this.container.removeChild(this.promptContainer);
     this.imageElement = imgNext; // set the new img element to be imageElement
   }
   leftClick() {
@@ -226,11 +268,16 @@ d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0
       new imageContainer(divImageContainer, this.imagesMap)
     );
     this.classMap.set("textContainer", new text(textDivElement, this.text));
+    divLeftClick.addEventListener("click", () =>
+      this.classMap.get("imageContainer").leftClick()
+    );
+    divRightClick.addEventListener("click", () =>
+      this.classMap.get("imageContainer").rightClick()
+    );
     //
     // show all the element before some time
     setTimeout(() => {
       this.classMap.forEach((element, name) => {
-        console.log(element);
         element.show();
       });
     }, 500);
@@ -243,10 +290,10 @@ d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0
 }
 
 const imgSki = new Map([
-  [0, "img/ski01.jpg"],
-  [1, "img/ski02.jpg"],
-  [2, "img/ski03.jpg"],
-  [3, "img/ski04.jpg"],
+  [0, { src: "img/ski01.jpg" }],
+  [1, { src: "img/ski02.jpg" }],
+  [2, { src: "img/ski03.jpg" }],
+  [3, { src: "img/ski04.jpg" }],
 ]);
 
 const skiCard = new card(
@@ -255,19 +302,147 @@ const skiCard = new card(
   "Skiing is an interesting and challenging sport.<br />I falled when skiing but I still like it❤️"
 );
 
-const cardMap = new Map([[0, skiCard]]);
+const imgSD = new Map([
+  [
+    0,
+    {
+      src: "img/SD01.png",
+      prompt: `sundress, hat,<br />
+                1girl, solo,<br />
+
+                (large breasts:1.2), cleavage, collarbone, <br />
+
+                blush, happy, smile, open mouth, looking at viewer, holding
+                flowers, <br />
+
+                finely beautiful blue eyes, big eyes, finely beautiful face,
+                beautiful detailed hands and body,<br />
+
+                super intricate finely detailed anime girl , (very long black
+                straight hair:1.2), (black hair, bangs hair:1.1),
+
+                <br />day, nature, outdoors, grasslands, flower,`,
+    },
+  ],
+  [
+    1,
+    {
+      src: "img/firefly.png",
+      prompt: `fireflyhsr, hairband, skirt, holding henshin device, henshin,
+                veins, burning clothes,<br />
+
+                sfw,<br />
+
+                medium breasts, keyhole, <br />
+
+                serious, glaring, looking at viewer, <br />
+
+                masterpiece,highly_detailed,best quailty,offical
+                art,Amazing,1girl,solo,Depth of field,extremely detailed CG
+                unity 8k wallpaper,<br />
+
+                finely beautiful detailed eyes, big eyes, glowing eyes, finely
+                beautiful face,beautiful detailed hands and body,<br />
+
+                super intricate finely detailed girl , (very long sliver
+                straight hair:1.05), sliver hair, (bangs hair:1.05) (cowboy
+                shot:1.2),<br />
+
+                fire, simple background, flame,`,
+    },
+  ],
+  [
+    2,
+    {
+      src: "img/miku_concert.png",
+      prompt: `white shirt, black pleated miniskirt, black thighhighs, black
+                detached sleeves, <br />
+
+                1girl,<br />
+
+                medium breasts,<br />
+
+                standing, heart hands,<br />
+
+                blush, smile, happy, looking at viewer, open mouth, wink, one
+                eye closed, <br />
+
+                finely beautiful aqua eyes, big eyes, finely beautiful face,
+                beautiful detailed hands and body,<br />
+
+                hatsune miku, (aqua twintails:1.05), (aqua hair,bangs hair:1.1)
+                (dutch angle:1.4), cowboy shot,`,
+    },
+  ],
+]);
+
+const SDCard = new card(
+  "Stable Diffusion",
+  imgSD,
+  "I use Stable Diffusion to generate images in my free time."
+);
+
+const imgMusic = new Map([
+  [
+    0,
+    {
+      src: "img/god-ish.jpeg",
+      link: "https://www.youtube.com/embed/EHBFKhLUVig",
+    },
+  ],
+  [
+    1,
+    {
+      src: "img/konton-boggie.jpeg",
+      link: "https://www.youtube.com/embed/1Swg-aBO9eY",
+    },
+  ],
+  [
+    2,
+    {
+      src: "img/Tetoris.png",
+      link: "https://www.youtube.com/embed/Soy4jGPHr3g",
+    },
+  ],
+  [
+    3,
+    {
+      src: "img/rabbit-hole.jpeg",
+      link: "https://www.youtube.com/embed/eSW2LVbPThw",
+    },
+  ],
+]);
+
+const MusicCard = new card(
+  "Music",
+  imgMusic,
+  "The bottom image in previos section is Hatsune Miku which is one of the member of VOCALOID. <br> Click the image to listen it❤️"
+);
+
+const cardMap = new Map([
+  [0, skiCard],
+  [1, SDCard],
+  [2, MusicCard],
+]);
 
 let cardID = 0;
 cardMap.get(cardID).show();
 
-document
-  .querySelector(".image-container #right-click")
-  .addEventListener("click", () =>
-    cardMap.get(cardID).classMap.get("imageContainer").rightClick()
-  );
+document.querySelector("#Next-habit").addEventListener("click", () => {
+  cardMap.get(cardID).hide();
+  cardID++;
+  cardID = Math.floor(cardID % cardMap.size);
+  setTimeout(() => {
+    cardMap.get(cardID).show();
+  }, 250);
+});
 
-document
-  .querySelector(".image-container #left-click")
-  .addEventListener("click", () =>
-    cardMap.get(cardID).classMap.get("imageContainer").leftClick()
-  );
+document.querySelector("#Pre-habit").addEventListener("click", () => {
+  cardMap.get(cardID).hide();
+  cardID--;
+  cardID += cardMap.size;
+  cardID = Math.floor(cardID % cardMap.size);
+  setTimeout(() => {
+    cardMap.get(cardID).show();
+  }, 250);
+});
