@@ -85,3 +85,17 @@
   top: 0;
   z-index: 0;
 }
+
+.txt-container {
+  background-color: var(--secondary-color);
+  width: 30%;
+  padding: 10px 30px;
+  border-radius: 15px;
+  border: 5px solid var(--primary-color);
+  position: absolute;
+  bottom: 5%;
+  right: -50%;
+  transform: translateY(50%);
+  transition: right 1s ease-in-out;
+  font-size: larger;
+}

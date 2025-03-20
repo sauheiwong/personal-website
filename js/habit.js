@@ -55,6 +55,20 @@ class title {
   }
 }
 
+class text {
+  constructor(textElement, text) {
+    this.textElement = textElement;
+    this.text = text;
+  }
+  show() {
+    this.textElement.innerHTML = this.text; // change the text
+    this.textElement.style.right = "15%"; // come out from left
+  }
+  hide() {
+    this.textElement.style.right = "-50%"; // go out
+  }
+}
+
 class imageContainer {
   constructor(container, imagesMap) {
     this.container = container;
@@ -117,10 +131,10 @@ class imageContainer {
     imgNext.classList += "img";
     imgNext.id = `${this.imageID}_image`;
     imgNext.src = this.imagesMap.get(this.imageID);
-    imgNext.style.animation = "showUp 0.5s ease forwards";
+    imgNext.style.animation = "showUp 1s ease forwards";
     //
     this.container.appendChild(imgNext);
-    this.imageElement.style.animation = "animation: hide 0.3s ease forwards;"; // the previous img will disappear slowly at the same time
+    this.imageElement.style.animation = "animation: hide 1s ease forwards;"; // the previous img will disappear slowly at the same time
     this.container.removeChild(this.imageElement); // remove the previous img elemnt
     this.imageElement = imgNext; // set the new img element to be imageElement
   }
@@ -133,11 +147,12 @@ class imageContainer {
 }
 
 class card {
-  constructor(title, imagesMap) {
+  constructor(title, imagesMap, text) {
     this.title = title; // save the title of a card
     this.imagesMap = imagesMap; // save the image url
     this.elementMap = new Map([]); // save the element
     this.classMap = new Map([]); // save the class so that it can control the animation of element
+    this.text = text;
   }
   show() {
     const container = document.querySelector(".container");
@@ -189,19 +204,28 @@ d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0
 </svg>
 `;
     divImageContainer.appendChild(divRightClick);
+    const textDivElement = document.createElement("div");
+    textDivElement.classList += "txt-container";
+    const textElement = document.createElement("p");
+    textElement.classList += "txt";
+    textElement.innerHTML += this.text;
+    textDivElement.appendChild(textElement);
     //
     // add the basic elements into the container
     container.appendChild(titleElement);
     container.appendChild(divImageContainer);
+    container.appendChild(textDivElement);
     //
     // set the elementMap and classMap
     this.elementMap.set("title", titleElement);
     this.elementMap.set("imageConatiner", divImageContainer);
+    this.elementMap.set("textConatiner", textDivElement);
     this.classMap.set("title", new title(titleElement, this.title));
     this.classMap.set(
       "imageContainer",
       new imageContainer(divImageContainer, this.imagesMap)
     );
+    this.classMap.set("textContainer", new text(textDivElement, this.text));
     //
     // show all the element before some time
     setTimeout(() => {
@@ -225,12 +249,16 @@ const imgSki = new Map([
   [3, "img/ski04.jpg"],
 ]);
 
-const skiCard = new card("Skiing", imgSki);
+const skiCard = new card(
+  "Skiing",
+  imgSki,
+  "Skiing is an interesting and challenging sport.<br />I falled when skiing but I still like it❤️"
+);
 
 const cardMap = new Map([[0, skiCard]]);
 
 let cardID = 0;
-// cardMap.get(cardID).show();
+cardMap.get(cardID).show();
 
 document
   .querySelector(".image-container #right-click")
