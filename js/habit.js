@@ -28,9 +28,7 @@ function onPlayerReady(event) {
 }
 
 function onPlayerStateChange(event) {
-  // 處理播放器狀態變化
   if (event.data == YT.PlayerState.ENDED) {
-    //影片播放結束時的動作
   }
 }
 
