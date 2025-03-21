@@ -1,5 +1,6 @@
 const myCanvas = document.getElementById("myCanvas");
 const ctx = myCanvas.getContext("2d");
+const timerDisplay = document.querySelector("#timer");
 
 const levelSetUp = {
   easy: {
@@ -19,15 +20,16 @@ const levelSetUp = {
     fontSize: 30,
   },
   hard: {
-    width: 50,
-    heigh: 50,
+    width: 30,
+    heigh: 30,
     chanceOfMiner: 0.3,
-    blockWidth: 30,
-    blockHeigh: 30,
+    blockWidth: 50,
+    blockHeigh: 50,
     fontSize: 20,
   },
 };
 let firstClick = true;
+let stopStatus = false;
 
 const colorMap = new Map([
   [0, "gray"],
@@ -272,12 +274,16 @@ class Base {
 
 const base = new Base(level);
 base.reset();
+let totalTime = 0;
 
 document.querySelectorAll(".level").forEach((btn) => {
   btn.addEventListener("click", () => {
     level = btn.id.toString();
     base.setLevel(level);
     base.reset();
+    totalTime = 0;
+    stopStatus = false;
+    timerDisplay.textContent = "00:00";
   });
 });
 
@@ -297,17 +303,20 @@ const editFinshContainer = (result) => {
     case "reset":
       popUpContainer.style.left = "-50%";
       finshMessageText.innerHTML = "";
+      stopStatus = true;
       return;
     case "win":
       finshMessageText.innerHTML = "You Win!🎉";
+      stopStatus = true;
       break;
     case "boom":
+      stopStatus = true;
       finshMessageText.innerHTML = "Boom!🔥<br>You Died☠️ <br>死💀";
       break;
   }
   popUpContainer.style.left = "37.5%";
 };
-
+// click event
 myCanvas.addEventListener("mousedown", function (event) {
   const rect = myCanvas.getBoundingClientRect();
   const x = event.clientX - rect.left;
@@ -355,7 +364,7 @@ myCanvas.addEventListener("mousedown", function (event) {
   }
   base.draw();
 });
-
+// point event
 myCanvas.addEventListener("mousemove", (event) => {
   const rect = myCanvas.getBoundingClientRect();
   const x = event.clientX - rect.left;
@@ -368,3 +377,16 @@ myCanvas.addEventListener("mousemove", (event) => {
   base.getArea(row, colum).pointed = true;
   base.draw();
 });
+
+//timer
+setInterval(function () {
+  if (firstClick || stopStatus) {
+    return;
+  }
+  totalTime++;
+  minutes = Math.floor(totalTime / 60);
+  seconds = totalTime % 60;
+  seconds = seconds < 10 ? "0" + seconds : seconds;
+  minutes = minutes < 10 ? "0" + minutes : minutes;
+  timerDisplay.textContent = `${minutes}:${seconds}`;
+}, 1000); // 每 1000 毫秒（1 秒）執行一次

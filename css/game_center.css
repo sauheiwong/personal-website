@@ -12,9 +12,10 @@
   grid-template-columns: 1fr;
   justify-self: center;
   width: 75%;
-  height: 20%;
+  height: 50%;
   border: 1px solid var(--primary-color);
   background-color: var(--secondary-color);
+  border-radius: 15px;
 }
 
 .card * {
@@ -36,4 +37,10 @@
 
 .card a:hover {
   background-color: rgb(0, 200, 200);
+}
+
+.img {
+  height: 200px;
+  object-fit: scale-down;
+  border-radius: 15px;
 }

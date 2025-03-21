@@ -82,6 +82,21 @@
   transition: left 1s ease-in-out;
 }
 
+.timer-container {
+  position: absolute;
+  width: 200px;
+  height: 100px;
+  left: 2%;
+  top: 20%;
+  background-color: var(--secondary-color);
+  border: 5px solid var(--primary-color);
+  border-radius: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: xx-large;
+}
+
 .pop-up {
   display: grid;
   background-color: var(--secondary-color);
