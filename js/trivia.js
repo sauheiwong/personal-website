@@ -115,12 +115,18 @@ class base {
     this.nowCard = null;
   }
   createCard() {
+    // card div
     const cardDiv = document.createElement("div");
     cardDiv.classList = "card";
+    // question div
     const questionDiv = document.createElement("div");
     questionDiv.classList = "question";
+    cardDiv.appendChild(questionDiv);
+    // answer div
     const answerDiv = document.createElement("div");
     answerDiv.classList = "answer-container";
+    cardDiv.appendChild(answerDiv);
+    //
     container.appendChild(cardDiv);
     this.newCard = cardDiv;
   }
@@ -128,6 +134,9 @@ class base {
     if (this.nowCard !== null) {
       this.nowCard.style.left = "-100%";
       this.nowCard.style.display = "none";
+      setTimeout(() => {
+        this.container.removeChild(this.nowCard);
+      }, 0);
     }
     if (this.newCard === null) {
       this.createCard();
@@ -139,6 +148,16 @@ class base {
     void this.newCard.offsetWidth;
     // Animate to the target position
     this.newCard.style.left = "10%";
+    setTimeout(() => {
+      let questionDiv = document.querySelector(".question");
+      const questionP = document.createElement("p");
+      questionP.classList = "question-p";
+      questionP.textContent = this.questionArray[this.correctTime].question;
+      setTimeout(() => {
+        questionP.style.opacity = "100%";
+      }, 100);
+      questionDiv.appendChild(questionP);
+    }, 1100);
   }
 }
 
@@ -156,3 +175,4 @@ async function getQuestions() {
 
 // getQuestions();
 const Base = new base(sample);
+Base.showUp();

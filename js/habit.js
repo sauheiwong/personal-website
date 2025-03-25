@@ -333,7 +333,7 @@ d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0
       this.classMap.get("imageContainer").rightClick()
     );
     //
-    // show all the element before some time
+    // show all the element after some time
     setTimeout(() => {
       this.classMap.forEach((element, name) => {
         element.show();
