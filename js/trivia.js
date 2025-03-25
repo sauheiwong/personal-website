@@ -105,6 +105,16 @@ const bonusMap = new Map([
   [9, 300000],
   [10, 500000],
 ]);
+
+function shuffle(array) {
+  return array.sort(() => Math.random() - 0.5);
+}
+
+function speakText(text) {
+  let utterance = new SpeechSynthesisUtterance(text);
+  speechSynthesis.speak(utterance);
+}
+
 class base {
   constructor(data) {
     this.questionArray = data.results;
@@ -113,14 +123,20 @@ class base {
     this.container = container;
     this.newCard = null;
     this.nowCard = null;
+    this.answerMap = null;
+    this.correctElement = null;
+    this.answerStatus = false;
   }
   createCard() {
     // card div
     const cardDiv = document.createElement("div");
     cardDiv.classList = "card";
+    // bonus div
+    const bonusDiv = document.createElement("div");
+    bonusDiv.classList = "bonus";
     // question div
     const questionDiv = document.createElement("div");
-    questionDiv.classList = "question";
+    questionDiv.classList = "question-container";
     cardDiv.appendChild(questionDiv);
     // answer div
     const answerDiv = document.createElement("div");
@@ -131,6 +147,7 @@ class base {
     this.newCard = cardDiv;
   }
   showUp() {
+    // if there have a card on screen, move it out of the screen and delete it
     if (this.nowCard !== null) {
       this.nowCard.style.left = "-100%";
       this.nowCard.style.display = "none";
@@ -138,6 +155,7 @@ class base {
         this.container.removeChild(this.nowCard);
       }, 0);
     }
+    // if there are not any card on screen, create a new card
     if (this.newCard === null) {
       this.createCard();
     }
@@ -148,16 +166,85 @@ class base {
     void this.newCard.offsetWidth;
     // Animate to the target position
     this.newCard.style.left = "10%";
+    // after the new card has been slided into the screen, set up the question and answer
     setTimeout(() => {
-      let questionDiv = document.querySelector(".question");
+      // bonus
+
+      // question
+      let questionData = this.questionArray[this.correctTime];
+      let questionDiv = document.querySelector(".question-container");
       const questionP = document.createElement("p");
       questionP.classList = "question-p";
-      questionP.textContent = this.questionArray[this.correctTime].question;
+      questionP.textContent = questionData.question;
+      // answer
+      let answerDiv = document.querySelector(".answer-container");
+      const answerArray = [
+        questionData.correct_answer,
+        ...questionData.incorrect_answers,
+      ];
+      //  shuffle the answer array
+      shuffle(answerArray);
+      // set up the answer map
+      this.answerMap = new Map([]);
+      this.answerMap.set(questionData.correct_answer, true);
+      questionData.incorrect_answers.forEach((answer) =>
+        this.answerMap.set(answer, false)
+      );
+      // show the answer opition
+      answerArray.forEach((answerText) => {
+        const answer = document.createElement("div");
+        answer.classList = "answer";
+        answer.innerHTML = `<p>${answerText}</p>`;
+        answerDiv.appendChild(answer);
+      });
+      // the qesution and answer will show up after the movement of card
       setTimeout(() => {
         questionP.style.opacity = "100%";
+        // question will be spoken when it shows up
+        speakText(`question ${this.correctTime + 1}
+          ${questionData.question}
+          `);
+        document.querySelectorAll(".answer").forEach((element, index) => {
+          // when mouse enter the answer element, use can hear the answer
+          element.addEventListener("mouseenter", () =>
+            speakText(element.textContent)
+          );
+          // when use click the answer element, check it is correct or not
+          element.addEventListener("click", () =>
+            this.answerIsCorrect(element)
+          );
+          // the answer element will show up by order
+          setTimeout(
+            () => (element.style.opacity = "100%"),
+            500 * index + 1000
+          );
+        });
       }, 100);
       questionDiv.appendChild(questionP);
     }, 1100);
+    // set now card to be the card show on screen
+    this.nowCard = document.querySelector(".card");
+    // empty the new card
+    this.newCard = null;
+  }
+  answerIsCorrect(element) {
+    if (this.answerStatus) {
+      return;
+    }
+    let answer = element.textContent;
+    if (this.answerMap.get(answer)) {
+      element.style.backgroundColor = "#0a0";
+    } else {
+      element.style.backgroundColor = "#a00";
+      element.style.color = "white";
+    }
+    document.querySelectorAll(".answer").forEach((elementLoop) => {
+      elementLoop.removeEventListener;
+      if (this.answerMap.get(elementLoop.textContent)) {
+        elementLoop.style.backgroundColor = "#0a0";
+      }
+    });
+    this.answerStatus = true;
   }
 }
 
