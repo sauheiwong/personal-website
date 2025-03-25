@@ -1,21 +1,23 @@
 .container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  justify-items: center;
-  align-items: center;
-  row-gap: 200px;
-  margin-top: 10%;
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  margin-top: 0%;
 }
 
 .card {
+  position: absolute;
   width: 80%;
-  min-height: 50%;
+  min-height: 80%;
   border: 5px solid var(--primary-color);
-  border-radius: 5px;
+  border-radius: 15px;
   background-color: var(--secondary-color);
   font-size: large;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: left 1s ease-in-out;
 }
