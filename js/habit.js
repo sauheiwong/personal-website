@@ -6,6 +6,7 @@ firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
 let player;
 let playStatus = false; // false mean stop the music
+let muteStatus = false;
 function onYouTubeIframeAPIReady() {
   player = new YT.Player("player", {
     height: "0",
@@ -23,22 +24,76 @@ function onYouTubeIframeAPIReady() {
   });
 }
 
+function updateVideoTitle() {
+  if (player && player.getVideoData) {
+    document.querySelector(
+      ".player-info"
+    ).innerHTML = `<a href='${player.getVideoUrl()}'>${
+      player.getVideoData().title
+    }</a>`;
+  }
+}
+
 function onPlayerReady(event) {
   event.target.pauseVideo();
+  player.setVolume(50);
+  document.querySelector(
+    ".player-info"
+  ).innerHTML = `<a href='${player.getVideoUrl()}'>${
+    player.getVideoData().title
+  }</a>`;
 }
 
 function onPlayerStateChange(event) {
   if (event.data == YT.PlayerState.ENDED) {
   }
+  if (event.data == YT.PlayerState.PLAYING) {
+    updateVideoTitle();
+  }
 }
 
-document.querySelector("#player-switch").addEventListener("click", () => {
+document.querySelector(".player-icon").addEventListener("click", () => {
   if (playStatus) {
     player.pauseVideo();
   } else {
     player.playVideo();
   }
   playStatus = !playStatus;
+});
+
+document.querySelector("#volume-up").addEventListener("click", () => {
+  if (player) {
+    var currentVolume = player.getVolume();
+    if (currentVolume < 100) {
+      player.setVolume(currentVolume + 10);
+    }
+  }
+});
+
+document.querySelector("#volume-down").addEventListener("click", () => {
+  if (player) {
+    var currentVolume = player.getVolume();
+    if (currentVolume > 0) {
+      player.setVolume(currentVolume - 10);
+    }
+  }
+});
+
+document.querySelector("#volume-switch").addEventListener("click", () => {
+  if (player) {
+    if (muteStatus) {
+      player.unMute();
+      document.querySelector(
+        "#volume-switch"
+      ).innerHTML = `<i class="bi bi-volume-off-fill">`;
+    } else {
+      player.mute();
+      document.querySelector(
+        "#volume-switch"
+      ).innerHTML = `<i class="bi bi-volume-mute"></i>`;
+    }
+    muteStatus = !muteStatus;
+  }
 });
 
 class title {
@@ -80,23 +135,29 @@ class imageContainer {
   show() {
     let id = null;
     let opacity = 0;
+    let imageItem = this.imagesMap.get(this.imageID);
     // create a img element
     this.imageElement = document.createElement("img");
     this.imageElement.classList += "img";
     this.imageElement.id = `${this.imageID}-image`;
-    this.imageElement.src = this.imagesMap.get(this.imageID).src;
+    this.imageElement.src = imageItem.src;
     // if the image has a link, then add a click event
-    if ("link" in this.imagesMap.get(this.imageID)) {
+    if ("link" in imageItem) {
       this.imageElement.addEventListener("click", () => {
-        PlayerState = true;
-        player.loadVideoById(this.imagesMap.get(this.imageID).link); // player the music
+        playStatus = true;
+        console.log(`<a href='${imageItem.url}'>${imageItem.title}</a>`);
+
+        player.loadVideoById(imageItem.link); // player the music
+        // document.querySelector(
+        //   ".player-info"
+        // ).innerHTML = `<a href='${imageItem.url}'>${imageItem.title}</a>`;
       });
     }
     //
-    if ("prompt" in this.imagesMap.get(this.imageID)) {
+    if ("prompt" in imageItem) {
       this.promptContainer = document.createElement("div");
       this.promptContainer.classList += "txt-in-img";
-      this.promptContainer.innerHTML += this.imagesMap.get(this.imageID).prompt;
+      this.promptContainer.innerHTML += imageItem.prompt;
       this.imageElement.style.right = "0%";
       this.container.appendChild(this.promptContainer);
       setTimeout(() => {
@@ -138,7 +199,7 @@ class imageContainer {
     id = setInterval(() => {
       if (opacity === 100) {
         // when opcaity is 100, stop it
-        if ("prompt" in this.imagesMap.get(this.imageID)) {
+        if ("prompt" in imageItem) {
           this.promptContainer.style.opacity = "0";
         }
         clearInterval(id);

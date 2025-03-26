@@ -1,12 +1,12 @@
 const myCanvas = document.getElementById("myCanvas");
 
 const blockColor = "red";
-const blockWidth = 100;
-const blockHeight = 50;
+const blockWidth = 90;
+const blockHeight = 40;
 
 const totalNumberOfBlocks = 48;
 const boardWidth = 150;
-const boardHeigh = 50;
+const boardHeigh = 10;
 const boardInitialX = myCanvas.width / 2 - boardWidth / 2;
 const boardInitialY = myCanvas.height - boardHeigh - 100;
 
@@ -50,7 +50,6 @@ class Board {
     this.ctx = canvas.getContext("2d");
     this.x = boardInitialX;
     this.y = boardInitialY;
-    this.energy = 50;
   }
 
   draw() {
@@ -61,12 +60,7 @@ class Board {
     this.ctx.stroke();
     this.ctx.closePath();
     this.ctx.beginPath();
-    this.ctx.rect(
-      this.x + (boardWidth * (1 - this.energy / 50)) / 2,
-      this.y,
-      boardWidth * (this.energy / 50),
-      boardHeigh
-    );
+    this.ctx.rect(this.x, this.y, boardWidth, boardHeigh);
     this.ctx.fillStyle = "blue";
     this.ctx.fill();
     this.ctx.closePath();
@@ -132,11 +126,6 @@ class Ball {
   changeDirectionTo(pi) {
     this.direction = pi;
   }
-
-  randomDirection() {
-    this.direction = Math.random() * Math.PI * 2;
-    // console.log("random direction");
-  }
 }
 
 // Base class for creating the base of the game
@@ -182,8 +171,8 @@ class Base {
     while (i < totalNumberOfBlocks) {
       this.setBlock(
         `block-${i}`,
-        (i % 8) * blockWidth,
-        ((i / 8) | 0) * blockHeight,
+        (i % 8) * blockWidth + 40,
+        ((i / 8) | 0) * blockHeight + 30,
         blockColor
       );
       this.getBlock(`block-${i}`).draw();
@@ -303,17 +292,6 @@ function oneFrame() {
 
 document.addEventListener("keydown", (e) => {
   let moveStep = step;
-  if (e.ctrlKey) {
-    if (board.energy <= 0) {
-      return;
-    }
-    moveStep = moveStep * 2;
-    board.energy -= 1;
-  } else {
-    if (board.energy < energyMax) {
-      board.energy += 1;
-    }
-  }
   switch (e.key) {
     case "ArrowLeft":
       if (!startStatus) {
@@ -335,7 +313,6 @@ document.addEventListener("keydown", (e) => {
     case "s":
       if (!startStatus) {
         startStatus = true;
-        // randomDirection = setInterval(ball.randomDirection, 1000);
         timeFrame = setInterval(oneFrame, timeFrameNumber);
       }
       break;
@@ -343,7 +320,6 @@ document.addEventListener("keydown", (e) => {
       if (startStatus) {
         startStatus = false;
         clearInterval(timeFrame);
-        // clearInterval(randomDirection);
       }
       break;
     case "t":
