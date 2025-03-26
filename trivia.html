@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tommy Personal Website</title>
+    <style type="text/css"></style>
+    <link href="css/nav.css" rel="stylesheet" />
+    <link href="css/body.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/trivia.css" />
+    <script defer src="js/trivia.js"></script>
+  </head>
+  <body>
+    <div>
+      <nav>
+        <ul>
+          <li><a href="/index.html" class="active">Home</a></li>
+          <li><a href="/habit.html">Habit</a></li>
+          <li><a href="/reading.html">Reading</a></li>
+          <li><a href="/game_center.html">Game Center</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="container">
+      <div id="pop-up-container">
+        <div class="pop-up">
+          <div id="finsh-message-container">
+            <p id="finsh-message"></p>
+          </div>
+          <div id="restart" class="btn">
+            <p>Restart</p>
+          </div>
+          <div id="ok" class="btn">
+            <p>OK</p>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="up-container">
+          <div class="question-container">
+            <p class="question-p"></p>
+            <div class="opition">
+              <div class="quit">Quit</div>
+              <div class="next-question">Next</div>
+            </div>
+          </div>
+          <div class="bonus-container">
+            <div class="bonus-bar"></div>
+          </div>
+        </div>
+        <div class="answer-container"></div>
+      </div>
+    </div>
+  </body>
+</html>
