@@ -1,109 +1,19 @@
-const sample = {
-  response_code: 0,
-  results: [
-    {
-      type: "multiple",
-      difficulty: "easy",
-      category: "Science &amp; Nature",
-      question:
-        "Rhinoplasty is a surgical procedure on what part of the human body?",
-      correct_answer: "Nose",
-      incorrect_answers: ["Ears", "Chin", "Neck"],
-    },
-    {
-      type: "multiple",
-      difficulty: "easy",
-      category: "Science &amp; Nature",
-      question: "Which element has the highest melting point?",
-      correct_answer: "Carbon",
-      incorrect_answers: ["Tungsten", "Platinum", "Osmium"],
-    },
-    {
-      type: "multiple",
-      difficulty: "easy",
-      category: "Science &amp; Nature",
-      question: "What is the primary addictive substance found in tobacco?",
-      correct_answer: "Nicotine",
-      incorrect_answers: ["Cathinone", "Ephedrine", "Glaucine"],
-    },
-    {
-      type: "multiple",
-      difficulty: "easy",
-      category: "Science &amp; Nature",
-      question: "Which of these bones is hardest to break?",
-      correct_answer: "Femur",
-      incorrect_answers: ["Cranium", "Humerus", "Tibia"],
-    },
-    {
-      type: "multiple",
-      difficulty: "easy",
-      category: "Science &amp; Nature",
-      question:
-        "Which of the following blood vessels carries deoxygenated blood?",
-      correct_answer: "Pulmonary Artery",
-      incorrect_answers: ["Pulmonary Vein", "Aorta", "Coronary Artery"],
-    },
-    {
-      type: "multiple",
-      difficulty: "easy",
-      category: "Science &amp; Nature",
-      question:
-        "What animal takes part in Schr&ouml;dinger&#039;s most famous thought experiment?",
-      correct_answer: "Cat",
-      incorrect_answers: ["Dog", "Bat", "Butterfly"],
-    },
-    {
-      type: "multiple",
-      difficulty: "easy",
-      category: "Science &amp; Nature",
-      question: "What does DNA stand for?",
-      correct_answer: "Deoxyribonucleic Acid",
-      incorrect_answers: [
-        "Deoxyribogenetic Acid",
-        "Deoxyribogenetic Atoms",
-        "Detoxic Acid",
-      ],
-    },
-    {
-      type: "multiple",
-      difficulty: "easy",
-      category: "Science &amp; Nature",
-      question: "The human heart has how many chambers?",
-      correct_answer: "4",
-      incorrect_answers: ["2", "6", "3"],
-    },
-    {
-      type: "multiple",
-      difficulty: "easy",
-      category: "Science &amp; Nature",
-      question: "Which is the most abundant element in the universe?",
-      correct_answer: "Hydrogen",
-      incorrect_answers: ["Helium", "Lithium", "Oxygen"],
-    },
-    {
-      type: "multiple",
-      difficulty: "easy",
-      category: "Science &amp; Nature",
-      question: "How many planets make up our Solar System?",
-      correct_answer: "8",
-      incorrect_answers: ["7", "9", "6"],
-    },
-  ],
-};
-
 const container = document.querySelector(".container");
+const finshMessageText = document.getElementById("finsh-message");
+const popUpContainer = document.getElementById("pop-up-container");
+
 const bonusMap = new Map([
-  [0, 0],
-  [1, 1000],
-  [2, 5000],
-  [3, 10000],
-  [4, 20000],
-  [5, 40000],
-  [6, 60000],
-  [7, 100000],
-  [8, 150000],
-  [9, 300000],
-  [10, 500000],
+  [10, { element: document.createElement("div"), money: 500000 }],
+  [9, { element: document.createElement("div"), money: 300000 }],
+  [8, { element: document.createElement("div"), money: 150000 }],
+  [7, { element: document.createElement("div"), money: 100000 }],
+  [6, { element: document.createElement("div"), money: 60000 }],
+  [5, { element: document.createElement("div"), money: 40000 }],
+  [4, { element: document.createElement("div"), money: 20000 }],
+  [3, { element: document.createElement("div"), money: 10000 }],
+  [2, { element: document.createElement("div"), money: 5000 }],
+  [1, { element: document.createElement("div"), money: 1000 }],
+  [0, { element: document.createElement("div"), money: 0 }],
 ]);
 
 function shuffle(array) {
@@ -116,66 +26,54 @@ function speakText(text) {
 }
 
 class base {
-  constructor(data) {
-    this.questionArray = data.results;
+  constructor() {
+    this.questionArray = null;
     this.correctTime = 0;
     this.bonusMap = bonusMap;
     this.container = container;
-    this.newCard = null;
-    this.nowCard = null;
+    this.Card = null;
     this.answerMap = null;
     this.correctElement = null;
     this.answerStatus = false;
+    this.bonusBar = document.querySelector(".bonus-bar");
+    this.opitionDiv = document.querySelector(".opition");
   }
-  createCard() {
-    // card div
-    const cardDiv = document.createElement("div");
-    cardDiv.classList = "card";
-    // bonus div
-    const bonusDiv = document.createElement("div");
-    bonusDiv.classList = "bonus";
-    // question div
-    const questionDiv = document.createElement("div");
-    questionDiv.classList = "question-container";
-    cardDiv.appendChild(questionDiv);
-    // answer div
-    const answerDiv = document.createElement("div");
-    answerDiv.classList = "answer-container";
-    cardDiv.appendChild(answerDiv);
-    //
-    container.appendChild(cardDiv);
-    this.newCard = cardDiv;
+  setData(data) {
+    this.questionArray = data;
+    this.createBonusBar();
+    this.showUp();
+  }
+  createBonusBar() {
+    this.correctTime = 0;
+    this.bonusMap.forEach((value, key) => {
+      value.element.textContent = value.money;
+      value.element.style.backgroundColor = "black";
+      value.element.style.color = "white";
+      this.bonusBar.appendChild(value.element);
+    });
+    this.changeBonusBar();
+  }
+  changeBonusBar() {
+    this.bonusMap.forEach((value, key) => {
+      if (this.correctTime >= key) {
+        value.element.style.backgroundColor = "var(--highlight-color)";
+        value.element.style.color = "black";
+      }
+    });
   }
   showUp() {
-    // if there have a card on screen, move it out of the screen and delete it
-    if (this.nowCard !== null) {
-      this.nowCard.style.left = "-100%";
-      this.nowCard.style.display = "none";
-      setTimeout(() => {
-        this.container.removeChild(this.nowCard);
-      }, 0);
-    }
-    // if there are not any card on screen, create a new card
-    if (this.newCard === null) {
-      this.createCard();
-    }
-    // Set initial state and display
-    this.newCard.style.left = "100%";
-    this.newCard.style.display = "flex";
-    // Trigger reflow to apply the transition
-    void this.newCard.offsetWidth;
-    // Animate to the target position
-    this.newCard.style.left = "10%";
-    // after the new card has been slided into the screen, set up the question and answer
+    document.querySelector(".answer-container").innerHTML = ""; // clear all the thing inside the answer container;
+    document.querySelectorAll(".opition *").forEach((element) => {
+      element.style.display = "none";
+    });
+    this.answerStatus = false;
     setTimeout(() => {
-      // bonus
-
-      // question
       let questionData = this.questionArray[this.correctTime];
-      let questionDiv = document.querySelector(".question-container");
-      const questionP = document.createElement("p");
-      questionP.classList = "question-p";
+      // question
+      let questionP = document.querySelector(".question-p");
+      questionP.textContent = "";
       questionP.textContent = questionData.question;
+      questionP.style.opacity = "0";
       // answer
       let answerDiv = document.querySelector(".answer-container");
       const answerArray = [
@@ -220,33 +118,78 @@ class base {
           );
         });
       }, 100);
-      questionDiv.appendChild(questionP);
     }, 1100);
-    // set now card to be the card show on screen
-    this.nowCard = document.querySelector(".card");
-    // empty the new card
-    this.newCard = null;
   }
   answerIsCorrect(element) {
+    // if use has chosen the answer, pass it
     if (this.answerStatus) {
       return;
     }
     let answer = element.textContent;
     if (this.answerMap.get(answer)) {
+      // if use choose the correct answer, change the background color of the div and show the opition
       element.style.backgroundColor = "#0a0";
+      speakText("Correct!");
+      this.correctTime++;
+      document.querySelectorAll(".opition *").forEach((element) => {
+        element.style.display = "block";
+      });
     } else {
+      // if use choose an incorrect answer, change the background color of the div and show the correct answer and pop up message
       element.style.backgroundColor = "#a00";
       element.style.color = "white";
+      this.correctTime = 0;
+      this.editFinshContainer("incorrect");
     }
+    this.changeBonusBar();
     document.querySelectorAll(".answer").forEach((elementLoop) => {
-      elementLoop.removeEventListener;
       if (this.answerMap.get(elementLoop.textContent)) {
         elementLoop.style.backgroundColor = "#0a0";
       }
     });
     this.answerStatus = true;
   }
+  next() {
+    // question
+    document.querySelector(".question-p").style.opacity = "0";
+    document
+      .querySelectorAll(".answer-container *")
+      .forEach((element) => (element.style.opacity = "0"));
+    document.querySelector(".answer-container").innerHTML = ""; // clear all the thing inside the answer container;
+    document.querySelectorAll(".opition *").forEach((element) => {
+      element.style.display = "none";
+    });
+    this.answerStatus = false;
+    this.showUp();
+  }
+  editFinshContainer(result) {
+    switch (result) {
+      case "reset":
+        popUpContainer.style.left = "-50%";
+        finshMessageText.textContent = "";
+        getQuestions();
+        return;
+      case "ok":
+        popUpContainer.style.left = "-50%";
+        finshMessageText.textContent = "";
+        return;
+      case "quit":
+        finshMessageText.textContent = `You leave with $${
+          this.bonusMap.get(this.correctTime).money
+        }🤩`;
+        break;
+      case "incorrect":
+        finshMessageText.textContent = "You leave with nothing😭";
+        break;
+      case "allCorrect":
+        finshMessageText.textContent = "OMG You got 500,000!🎉";
+        break;
+    }
+    popUpContainer.style.left = "37.5%";
+  }
 }
+
+let Base = null;
 
 async function getQuestions() {
   const response = await fetch(
@@ -254,12 +197,23 @@ async function getQuestions() {
   );
   let data = await response.json();
   data = data.results;
-  console.log(data);
-  data.forEach((question) => {
-    console.log(question);
+  Base = new base();
+  Base.setData(data);
+  document.querySelector(".quit").addEventListener("click", () => {
+    Base.editFinshContainer("quit");
+  });
+
+  document.querySelector(".next-question").addEventListener("click", () => {
+    Base.next();
+  });
+
+  document.querySelector("#ok").addEventListener("click", () => {
+    Base.editFinshContainer("ok");
+  });
+
+  document.querySelector("#restart").addEventListener("click", () => {
+    Base.editFinshContainer("reset");
   });
 }
 
-// getQuestions();
-const Base = new base(sample);
-Base.showUp();
+getQuestions();
