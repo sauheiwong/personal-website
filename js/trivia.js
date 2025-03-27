@@ -62,7 +62,8 @@ class base {
     });
   }
   showUp() {
-    document.querySelector(".answer-container").innerHTML = ""; // clear all the thing inside the answer container;
+    let answerDiv = document.querySelector(".answer-container");
+    answerDiv.innerHTML = ""; // clear all the thing inside the answer container;
     document.querySelectorAll(".opition *").forEach((element) => {
       element.style.display = "none";
     });
@@ -75,7 +76,6 @@ class base {
       questionP.textContent = questionData.question;
       questionP.style.opacity = "0";
       // answer
-      let answerDiv = document.querySelector(".answer-container");
       const answerArray = [
         questionData.correct_answer,
         ...questionData.incorrect_answers,
@@ -154,8 +154,7 @@ class base {
     document.querySelector(".question-p").style.opacity = "0";
     document
       .querySelectorAll(".answer-container *")
-      .forEach((element) => (element.style.opacity = "0"));
-    document.querySelector(".answer-container").innerHTML = ""; // clear all the thing inside the answer container;
+      .forEach((element) => (element.style.opacity = "0")); // all answers are disappeared
     document.querySelectorAll(".opition *").forEach((element) => {
       element.style.display = "none";
     });
@@ -192,28 +191,41 @@ class base {
 let Base = null;
 
 async function getQuestions() {
-  const response = await fetch(
-    "https://opentdb.com/api.php?amount=10&category=17&difficulty=easy&type=multiple"
-  );
-  let data = await response.json();
-  data = data.results;
-  Base = new base();
-  Base.setData(data);
-  document.querySelector(".quit").addEventListener("click", () => {
-    Base.editFinshContainer("quit");
-  });
+  try {
+    const response = await fetch(
+      "https://opentdb.com/api.php?amount=10&category=17&difficulty=easy&type=multiple"
+    );
+    if (!response.ok) {
+      // if response is not ok
+      setTimeout(getQuestions, 2000); // run again after 2s
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    let data = await response.json();
+    data = data.results;
+    if (Base === null) {
+      Base = new base();
+      document.querySelector(".quit").addEventListener("click", () => {
+        Base.editFinshContainer("quit");
+      });
 
-  document.querySelector(".next-question").addEventListener("click", () => {
-    Base.next();
-  });
+      document.querySelector(".next-question").addEventListener("click", () => {
+        Base.next();
+      });
 
-  document.querySelector("#ok").addEventListener("click", () => {
-    Base.editFinshContainer("ok");
-  });
+      document.querySelector("#ok").addEventListener("click", () => {
+        Base.editFinshContainer("ok");
+      });
 
-  document.querySelector("#restart").addEventListener("click", () => {
-    Base.editFinshContainer("reset");
-  });
+      document.querySelector("#restart").addEventListener("click", () => {
+        Base.editFinshContainer("reset");
+      });
+    }
+    Base.setData(data);
+  } catch (error) {
+    // 處理錯誤
+    console.error("Fetch error:", error);
+    // 在此處顯示錯誤訊息或執行其他錯誤處理邏輯
+  }
 }
 
 getQuestions();
