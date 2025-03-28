@@ -6,7 +6,7 @@ firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
 let player;
 let playStatus = false; // false mean stop the music
-let muteStatus = false;
+let muteStatus = false; // false mean unmute
 function onYouTubeIframeAPIReady() {
   player = new YT.Player("player", {
     height: "0",
@@ -85,12 +85,12 @@ document.querySelector("#volume-switch").addEventListener("click", () => {
       player.unMute();
       document.querySelector(
         "#volume-switch"
-      ).innerHTML = `<i class="bi bi-volume-off-fill">`;
+      ).innerHTML = `<i class="bi bi-volume-off-fill">`; // change the icon when unmute
     } else {
       player.mute();
       document.querySelector(
         "#volume-switch"
-      ).innerHTML = `<i class="bi bi-volume-mute"></i>`;
+      ).innerHTML = `<i class="bi bi-volume-mute"></i>`; // change the icon when mute
     }
     muteStatus = !muteStatus;
   }

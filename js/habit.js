@@ -1,10 +1,11 @@
 class title {
+  // the title element
   constructor(titleElement, title) {
     this.titleElement = titleElement;
     this.title = title;
   }
   show() {
-    this.titleElement.innerHTML = this.title; // change the text to title
+    this.titleElement.innerHTML = this.title; // change the text to title of the card
     this.titleElement.style.left = "15%"; // come out from left
   }
   hide() {
@@ -13,12 +14,13 @@ class title {
 }
 
 class text {
+  // the text contect
   constructor(textElement, text) {
     this.textElement = textElement;
     this.text = text;
   }
   show() {
-    this.textElement.innerHTML = this.text; // change the text
+    this.textElement.innerHTML = this.text; // change the text to text of the card
     this.textElement.style.right = "15%"; // come out from left
   }
   hide() {
@@ -43,26 +45,25 @@ class imageContainer {
     this.imageElement.classList += "img";
     this.imageElement.id = `${this.imageID}-image`;
     this.imageElement.src = imageItem.src;
-    // if the image has a link, then add a click event
+    // if the image has a link (only music card has link), then add a click event
     if ("link" in imageItem) {
       this.imageElement.addEventListener("click", () => {
         playStatus = true;
         console.log(`<a href='${imageItem.url}'>${imageItem.title}</a>`);
 
         player.loadVideoById(imageItem.link); // player the music
-        // document.querySelector(
-        //   ".player-info"
-        // ).innerHTML = `<a href='${imageItem.url}'>${imageItem.title}</a>`;
       });
     }
     //
     if ("prompt" in imageItem) {
+      // if the image has a prompt (only Stable Diffusion card has prompt), then add a mouse enter event
       this.promptContainer = document.createElement("div");
       this.promptContainer.classList += "txt-in-img";
       this.promptContainer.innerHTML += imageItem.prompt;
       this.imageElement.style.right = "0%";
       this.container.appendChild(this.promptContainer);
       setTimeout(() => {
+        // the interactive part will complete after the DOM has done
         this.imageElement.addEventListener("mouseenter", () => {
           this.imageElement.style.right = "-20%";
           this.promptContainer.style.display = "block";
@@ -92,7 +93,7 @@ class imageContainer {
             }
           }, 7);
         });
-      }, 10);
+      }, 500);
     }
     this.container.appendChild(this.imageElement); // add to it's container
     let childrenArray = [...this.container.children]; // get all children element
@@ -121,7 +122,6 @@ class imageContainer {
     let childrenArray = [...this.container.children];
     clearInterval(id);
     id = setInterval(() => {
-      // Use arrow function
       if (opacity === 0) {
         clearInterval(id);
       } else {
@@ -188,7 +188,7 @@ class imageContainer {
             }
           }, 7);
         });
-      }, 10);
+      }, 500);
       this.container.appendChild(NewpromptContainer);
       this.container.removeChild(this.promptContainer);
       this.promptContainer = NewpromptContainer;
@@ -209,17 +209,13 @@ class imageContainer {
 class card {
   constructor(title, imagesMap, text) {
     this.title = title; // save the title of a card
-    this.imagesMap = imagesMap; // save the image url
+    this.imagesMap = imagesMap; // save the image infor
     this.elementMap = new Map([]); // save the element
     this.classMap = new Map([]); // save the class so that it can control the animation of element
     this.text = text;
   }
   show() {
     const container = document.querySelector(".container");
-    setTimeout(() => {
-      let i = null;
-    }, 500);
-    //
     // clear all the element inside a card
     while (container.lastChild.className !== "click-div") {
       container.removeChild(container.lastChild);
