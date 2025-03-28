@@ -28,7 +28,7 @@ const levelSetUp = {
     fontSize: 20,
   },
 };
-let firstClick = true;
+let firstClick = true; // if user click a mine at the beginning, reset the game
 let stopStatus = false;
 
 const colorMap = new Map([
@@ -87,6 +87,7 @@ class Block {
     }
     ctx.fill();
     if (this.pointed) {
+      // if user is pointing the block
       ctx.strokeStyle = "white";
       ctx.lineWidth = 5;
     } else {
@@ -336,7 +337,7 @@ myCanvas.addEventListener("mousedown", function (event) {
         return;
       }
       if (block.getValue() === 2 && firstClick) {
-        // if the first click a mine
+        // if user click a mine at the beginning
         while (base.getArea(row, colum).getValue() === 2) {
           base.reset();
         }
@@ -389,4 +390,4 @@ setInterval(function () {
   seconds = seconds < 10 ? "0" + seconds : seconds;
   minutes = minutes < 10 ? "0" + minutes : minutes;
   timerDisplay.textContent = `${minutes}:${seconds}`;
-}, 1000); // 每 1000 毫秒（1 秒）執行一次
+}, 1000);
