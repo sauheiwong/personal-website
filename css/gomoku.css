@@ -1,0 +1,17 @@
+body {
+  background-color: rgb(109, 109, 109);
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+#myCanvas {
+  border: 1px solid black;
+  width: 800px;
+  height: 800px;
+  background-color: rgb(109, 109, 109);
+}
