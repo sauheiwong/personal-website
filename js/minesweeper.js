@@ -7,24 +7,24 @@ const levelSetUp = {
     width: 10,
     heigh: 10,
     chanceOfMiner: 0.1,
-    blockWidth: 150,
-    blockHeigh: 150,
+    blockWidth: 80,
+    blockHeigh: 80,
     fontSize: 50,
   },
   medium: {
     width: 20,
     heigh: 20,
     chanceOfMiner: 0.2,
-    blockWidth: 75,
-    blockHeigh: 75,
+    blockWidth: 40,
+    blockHeigh: 40,
     fontSize: 30,
   },
   hard: {
-    width: 30,
-    heigh: 30,
+    width: 40,
+    heigh: 40,
     chanceOfMiner: 0.3,
-    blockWidth: 50,
-    blockHeigh: 50,
+    blockWidth: 20,
+    blockHeigh: 20,
     fontSize: 20,
   },
 };
@@ -146,8 +146,8 @@ class Base {
   }
 
   getWhichBlockPoint(x, y) {
-    let row = Math.floor(x / (blockWidth() / 2));
-    let colum = Math.floor(y / (blockHeigh() / 2));
+    let row = Math.floor(x / blockWidth());
+    let colum = Math.floor(y / blockHeigh());
     return [row, colum];
   }
 
