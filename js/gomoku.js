@@ -10,7 +10,7 @@ const baseHeight = 20;
 
 const numberOfWin = 5;
 
-let playerStatus = false; // false means player_1 round, true means player_2 round
+let playerStatus = false; // false means player_1 round (min player), true means player_2 round (max player)
 let isGameOver = false;
 
 class Block {
@@ -135,6 +135,47 @@ class Base {
     return this.blockMap.get(`${x},${y}`);
   }
   checkWin(x, y, playerStatus) {
+    const directions = [
+      [0, 1], // horizontal
+      [1, 0], // vertical
+      [1, 1], // y = x
+      [1, -1], // y = -x
+    ];
+
+    const player = playerStatus ? 2 : 1;
+
+    for (const [dx, dy] of directions) {
+      let count = 1; // include the first piece
+      // same way
+      for (let i = 1; i < numberOfWin; i++) {
+        if (
+          this.getBlock(x + i * dx, y + i * dy) &&
+          this.getBlock(x + i * dx, y + i * dy).getPlayerStatus() === player
+        ) {
+          count++;
+        } else {
+          break;
+        }
+      }
+      // opposite way
+      for (let i = 1; i < numberOfWin; i++) {
+        if (
+          this.getBlock(x - i * dx, y - i * dy) &&
+          this.getBlock(x - i * dx, y - i * dy).getPlayerStatus() === player
+        ) {
+          count++;
+        } else {
+          break;
+        }
+      }
+      if (count >= numberOfWin) {
+        return true;
+      }
+    }
+    return false;
+  }
+  getScoresOfNow(x, y, playerStatus) {
+    // 數活3 活4 死4
     const directions = [
       [0, 1], // horizontal
       [1, 0], // vertical

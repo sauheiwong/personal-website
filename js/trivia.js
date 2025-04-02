@@ -222,9 +222,7 @@ async function getQuestions() {
     }
     Base.setData(data);
   } catch (error) {
-    // 處理錯誤
     console.error("Fetch error:", error);
-    // 在此處顯示錯誤訊息或執行其他錯誤處理邏輯
   }
 }
 
