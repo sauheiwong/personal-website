@@ -109,9 +109,14 @@ class Block {
 
 class Base {
   constructor() {
-    this.blockMap = new Map([]);
+    this.blockMap = new Map([]); // ['x,y', new block(x, y)]
     this.setUp();
     this.draw();
+    this.winSetMap = new Map([
+      [1, []], // the win combination of player 1 {combination: [], scores: 0}
+      [2, []], // the win combination of player 2 {combination: [], scores: 0}
+    ]);
+    this.unprocessWinCombination = [];
   }
   setUp() {
     for (let x = 0; x < baseWidth; x++) {
@@ -134,7 +139,7 @@ class Base {
   getBlock(x, y) {
     return this.blockMap.get(`${x},${y}`);
   }
-  checkWin(x, y, playerStatus) {
+  checkWinInMap(x, y, playerStatus) {
     const directions = [
       [0, 1], // horizontal
       [1, 0], // vertical
@@ -146,6 +151,7 @@ class Base {
 
     for (const [dx, dy] of directions) {
       let count = 1; // include the first piece
+      let winCombination = [`${x},${y}`];
       // same way
       for (let i = 1; i < numberOfWin; i++) {
         if (
@@ -153,6 +159,12 @@ class Base {
           this.getBlock(x + i * dx, y + i * dy).getPlayerStatus() === player
         ) {
           count++;
+          winCombination.push(`${x + i * dx},${y + i * dy}`);
+        } else if (
+          this.getBlock(x + i * dx, y + i * dy) &&
+          this.getBlock(x + i * dx, y + i * dy).getPlayerStatus() === 0
+        ) {
+          winCombination.push(`${x + i * dx},${y + i * dy}`);
         } else {
           break;
         }
@@ -164,9 +176,20 @@ class Base {
           this.getBlock(x - i * dx, y - i * dy).getPlayerStatus() === player
         ) {
           count++;
+          winCombination.unshift(`${x - i * dx},${y - i * dy}`);
+        } else if (
+          this.getBlock(x - i * dx, y - i * dy) &&
+          this.getBlock(x - i * dx, y - i * dy).getPlayerStatus() === 0
+        ) {
+          winCombination.unshift(`${x - i * dx},${y - i * dy}`);
         } else {
           break;
         }
+      }
+      // if the length of winCombination is greater than numberOfWin,
+      // it means this winCombination is vaild so push into unprocessedWinCombination
+      if (winCombination.length >= numberOfWin) {
+        this.unprocessWinCombination.push(winCombination);
       }
       if (count >= numberOfWin) {
         return true;
@@ -174,46 +197,28 @@ class Base {
     }
     return false;
   }
-  getScoresOfNow(x, y, playerStatus) {
-    // 數活3 活4 死4
-    const directions = [
-      [0, 1], // horizontal
-      [1, 0], // vertical
-      [1, 1], // y = x
-      [1, -1], // y = -x
-    ];
-
-    const player = playerStatus ? 2 : 1;
-
-    for (const [dx, dy] of directions) {
-      let count = 1; // include the first piece
-      // same way
-      for (let i = 1; i < numberOfWin; i++) {
-        if (
-          this.getBlock(x + i * dx, y + i * dy) &&
-          this.getBlock(x + i * dx, y + i * dy).getPlayerStatus() === player
-        ) {
-          count++;
-        } else {
-          break;
-        }
+  processWinCombination(player) {
+    // convent unprocessedWinCombination to normal (length is numberOfWin) winCombination
+    this.unprocessWinCombination.forEach((winCombination) => {
+      let i = 0;
+      while (i + numberOfWin - 1 < winCombination.length) {
+        this.winSetMap
+          .get(player)
+          .push(
+            winCombination.filter(
+              (value, index) => index >= i && index <= i + numberOfWin - 1
+            )
+          );
+        i++;
       }
-      // opposite way
-      for (let i = 1; i < numberOfWin; i++) {
-        if (
-          this.getBlock(x - i * dx, y - i * dy) &&
-          this.getBlock(x - i * dx, y - i * dy).getPlayerStatus() === player
-        ) {
-          count++;
-        } else {
-          break;
-        }
-      }
-      if (count >= numberOfWin) {
-        return true;
-      }
-    }
-    return false;
+    });
+  }
+  getBlockMapToIntMap() {
+    const intMap = new Map([]);
+    this.blockMap.forEach((block, position) =>
+      intMap.set(position, block.getPlayerStatus())
+    );
+    return intMap;
   }
 }
 
@@ -224,6 +229,7 @@ myCanvas.addEventListener("click", (event) => {
   if (isGameOver) {
     return;
   }
+  let player = playerStatus ? 2 : 1;
   const rect = myCanvas.getBoundingClientRect();
   const x = event.clientX - rect.left;
   const y = event.clientY - rect.top;
@@ -231,11 +237,12 @@ myCanvas.addEventListener("click", (event) => {
   if (base.getBlock(row, colum).getPlayerStatus() !== 0) {
     return;
   }
-  base.getBlock(row, colum).setPlayerStatus(playerStatus ? 2 : 1);
-  if (base.checkWin(row, colum, playerStatus)) {
-    console.log(`player ${playerStatus ? 2 : 1} Win!`);
+  base.getBlock(row, colum).setPlayerStatus(player);
+  if (base.checkWinInMap(row, colum, playerStatus)) {
+    console.log(`player ${player} Win!`);
     isGameOver = true;
   }
+  base.processWinCombination(player);
   playerStatus = !playerStatus;
   base.draw();
 });
