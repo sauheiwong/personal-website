@@ -1,17 +1,25 @@
 const myCanvas = document.querySelector("canvas");
 const ctx = myCanvas.getContext("2d");
 
-const blockWidth = 40;
-const blockHeight = 40;
+const blockWidth = 50;
+const blockHeight = 50;
 const circleRadius = 15;
 
-const baseWidth = 20;
-const baseHeight = 20;
+const baseWidth = 15;
+const baseHeight = 15;
 
 const numberOfWin = 5;
 
 let playerStatus = false; // false means player_1 round (min player), true means player_2 round (max player)
 let isGameOver = false;
+
+const comboScoresMap = new Map([
+  [1, 1],
+  [2, 10],
+  [3, 100],
+  [4, 1000],
+  [5, 10000],
+]);
 
 class Block {
   constructor(x, y) {
@@ -72,7 +80,7 @@ class Block {
     switch (this.playerStatus) {
       case 0:
         break;
-      case 1:
+      case 2:
         ctx.beginPath();
         ctx.arc(
           this.x + blockWidth / 2,
@@ -87,7 +95,7 @@ class Block {
         ctx.strokeStyle = "black";
         ctx.stroke();
         break;
-      case 2:
+      case 1:
         ctx.beginPath();
         ctx.arc(
           this.x + blockWidth / 2,
@@ -113,8 +121,8 @@ class Base {
     this.setUp();
     this.draw();
     this.winSetMap = new Map([
-      [1, []], // the win combination of player 1 {combination: [], scores: 0}
-      [2, []], // the win combination of player 2 {combination: [], scores: 0}
+      [1, []], // the win combination of player 1
+      [2, []], // the win combination of player 2
     ]);
     this.unprocessWinCombination = [];
   }
@@ -139,15 +147,13 @@ class Base {
   getBlock(x, y) {
     return this.blockMap.get(`${x},${y}`);
   }
-  checkWinInMap(x, y, playerStatus) {
+  isWinInMap(x, y, player) {
     const directions = [
       [0, 1], // horizontal
       [1, 0], // vertical
       [1, 1], // y = x
       [1, -1], // y = -x
     ];
-
-    const player = playerStatus ? 2 : 1;
 
     for (const [dx, dy] of directions) {
       let count = 1; // include the first piece
@@ -198,20 +204,54 @@ class Base {
     return false;
   }
   processWinCombination(player) {
+    let playerWinSet = this.winSetMap.get(player);
     // convent unprocessedWinCombination to normal (length is numberOfWin) winCombination
     this.unprocessWinCombination.forEach((winCombination) => {
       let i = 0;
       while (i + numberOfWin - 1 < winCombination.length) {
-        this.winSetMap
-          .get(player)
-          .push(
-            winCombination.filter(
-              (value, index) => index >= i && index <= i + numberOfWin - 1
-            )
-          );
+        let unCheckWinCombination = winCombination.filter(
+          (value, index) => index >= i && index <= i + numberOfWin - 1
+        );
+        if (
+          // if the winCombination does not exist in winSet, push it into winSet
+          !playerWinSet.some(
+            (value) =>
+              value[0] === unCheckWinCombination[0] &&
+              value[numberOfWin - 1] === unCheckWinCombination[numberOfWin - 1]
+          )
+        ) {
+          playerWinSet.push(unCheckWinCombination);
+        }
         i++;
       }
     });
+    this.unprocessWinCombination = []; // clear unprocessWinCombination
+  }
+  removeBlockedWinSet(x, y) {
+    let otherPlayer = playerStatus ? 1 : 2;
+    this.winSetMap.set(
+      otherPlayer,
+      this.winSetMap.get(otherPlayer).filter((combination) => {
+        return !combination.includes(`${x},${y}`);
+      })
+    );
+  }
+  getTheScores(player) {
+    let scores = 0;
+    const intMap = this.getBlockMapToIntMap();
+    this.winSetMap.get(player).forEach((winSet) => {
+      scores += this.getTheScoresOfWinSet(winSet, intMap, player);
+    });
+    return scores;
+  }
+  getTheScoresOfWinSet(winSet, intMap, player) {
+    let combo = 0;
+    winSet.forEach((position) => {
+      if (intMap.get(position) === player) {
+        combo++;
+      }
+    });
+    return comboScoresMap.get(combo);
   }
   getBlockMapToIntMap() {
     const intMap = new Map([]);
@@ -238,11 +278,12 @@ myCanvas.addEventListener("click", (event) => {
     return;
   }
   base.getBlock(row, colum).setPlayerStatus(player);
-  if (base.checkWinInMap(row, colum, playerStatus)) {
+  if (base.isWinInMap(row, colum, player)) {
     console.log(`player ${player} Win!`);
     isGameOver = true;
   }
   base.processWinCombination(player);
+  base.removeBlockedWinSet(row, colum);
   playerStatus = !playerStatus;
   base.draw();
 });
