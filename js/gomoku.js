@@ -10,6 +10,9 @@ const baseHeight = 15;
 
 const numberOfWin = 5;
 
+const nodeBreadth = 20;
+const nodeDepth = 5;
+
 let playerStatus = false; // false means player_1 round (min player), true means player_2 round (max player)
 let isGameOver = false;
 
@@ -73,7 +76,11 @@ class Block {
         2 * Math.PI
       );
       ctx.lineWidth = 2;
-      ctx.strokeStyle = "blue";
+      if (playerStatus) {
+        ctx.strokeStyle = "white";
+      } else {
+        ctx.strokeStyle = "black";
+      }
       ctx.stroke();
     }
     // if someone pick this block, add white or black piece on this block
@@ -254,13 +261,110 @@ class Base {
     return comboScoresMap.get(combo);
   }
   getBlockMapToIntMap() {
+    // 1. get the map infor
     const intMap = new Map([]);
     this.blockMap.forEach((block, position) =>
       intMap.set(position, block.getPlayerStatus())
     );
     return intMap;
   }
+  getTheDeltaOfMap(intMap) {
+    // 2. decide which N areas should be included into the game tree.
+    // 2.1. get all piece of both player
+    // 2.2. use sparation function to calcute the ave. different between the ave. position and each position of piece.
+    const mapInfor = new Map([
+      [1, { x: 0, y: 0, positionArray: [] }],
+      [2, { x: 0, y: 0, positionArray: [] }],
+    ]);
+    intMap.forEach((player, position) => {
+      if (player !== 0) {
+        let [newX, newY] = position.split(",");
+        [newX, newY] = [Number(newX), Number(newY)];
+        let aveObj = mapInfor.get(player);
+        if (aveObj.positionArray.length === 0) {
+          aveObj.x = newX;
+          aveObj.y = newY;
+        } else {
+          let n = aveObj.positionArray.length;
+          aveObj.x = (newX + aveObj.x * n) / (n + 1);
+          aveObj.y = (newY + aveObj.y * n) / (n + 1);
+        }
+        aveObj.positionArray.push({ x: newX, y: newY });
+      }
+    });
+    return {
+      playerOne: this.separationFunction(mapInfor.get(1)),
+      playerTwo: this.separationFunction(mapInfor.get(2)),
+    };
+  }
+  separationFunction({ x, y, positionArray }) {
+    let delta = 0;
+    positionArray.forEach((position) => {
+      delta += (x - position.x) ** 2 + (y - position.y) ** 2;
+    });
+    return delta;
+  }
+  isGameOverInIntMap(intMap) {
+    const directions = [
+      [0, 1], // horizontal
+      [1, 0], // vertical
+      [1, 1], // y = x
+      [1, -1], // y = -x
+    ];
+    for (const [position, player] of intMap) {
+      if (player !== 0) {
+        for (const [dx, dy] of directions) {
+          let count = 1; // include the first piece
+          // same way
+          for (let i = 1; i < numberOfWin; i++) {
+            if (
+              intMap.get(`${x + i * dx},${y + i * dy}`) &&
+              intMap.get(`${x + i * dx},${y + i * dy}`).getPlayerStatus() ===
+                player
+            ) {
+              count++;
+            } else {
+              break;
+            }
+          }
+          // opposite way
+          for (let i = 1; i < numberOfWin; i++) {
+            if (
+              intMap.get(`${x - i * dx},${y - i * dy}`) &&
+              intMap.get(`${x - i * dx},${y - i * dy}`).getPlayerStatus() ===
+                player
+            ) {
+              count++;
+            } else {
+              break;
+            }
+          }
+          if (count >= numberOfWin) {
+            return true;
+          }
+        }
+        return false;
+      }
+    }
+  }
+
+  Minimax(intMap, depth, isMax, player) {
+    if (depth === 0 || this.isGameOverInIntMap(intMap)) {
+      return;
+    }
+  }
 }
+
+// scores system
+// 1. get the map infor
+// 2. decide which N areas should be included into the game tree.
+// 2.1. get all piece of both player
+// 2.2. use sparation function to calcute the ave. different between the ave. position and each position of piece.
+// 2.3. only include the first 20 area into the game tree.
+// 3. get the scores of this game node.
+// 3.1. get how many and where the piece of player are
+// 3.2. court how many piece connect between each other
+// 3.3. according to the number of connect, give different scores.
 
 const base = new Base();
 
