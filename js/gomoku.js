@@ -10,8 +10,8 @@ const baseHeight = 15;
 
 const numberOfWin = 5;
 
-const nodeBreadth = 30;
-const nodeDepth = 3;
+const nodeBreadth = 20;
+const nodeDepth = 2;
 
 let playerStatus = false; // false means player_1 round (min player), true means player_2 round (max player)
 let isGameOver = false;
@@ -21,7 +21,7 @@ const comboScoresMap = new Map([
   [2, 10],
   [3, 100],
   [4, 1000],
-  [5, Infinity],
+  [5, 1000000],
 ]);
 
 class Block {
@@ -404,8 +404,9 @@ class Base {
       .map((item) => item.key)
       .filter((value, index) => index >= 0 && index < nodeBreadth);
   }
-  minimax(intMap, depth, isMax) {
+  minimax(intMap, depth, alpha, beta, isMax) {
     // isMax is true or false, false means player 1 (min player), true means player_2 (max player)
+    // init alpha shound be -Infinity, init beta shound be +Infinity
     if (depth === 0 || this.isGameOverInIntMap(intMap)) {
       return this.getScoresOfIntMap(intMap);
     }
@@ -416,8 +417,15 @@ class Base {
       let player = 1;
       for (const position of this.getTheFirstNthChoice(intMap, player)) {
         intMap.set(position, player);
-        maxEval = Math.max(maxEval, this.minimax(intMap, depth - 1, false));
+        maxEval = Math.max(
+          maxEval,
+          this.minimax(intMap, depth - 1, alpha, beta, false)
+        );
+        alpha = Math.max(alpha, maxEval);
         intMap.set(position, 0);
+        if (beta <= alpha) {
+          break;
+        }
       }
       return maxEval;
     } else {
@@ -425,8 +433,15 @@ class Base {
       let player = 2;
       for (const position of this.getTheFirstNthChoice(intMap, player)) {
         intMap.set(position, player);
-        minEval = Math.min(minEval, this.minimax(intMap, depth - 1, true));
+        minEval = Math.min(
+          minEval,
+          this.minimax(intMap, depth - 1, alpha, beta, true)
+        );
+        beta = Math.min(beta, minEval);
         intMap.set(position, 0);
+        if (beta <= alpha) {
+          break;
+        }
       }
       return minEval;
     }
@@ -437,7 +452,7 @@ class Base {
     let bestEval = -Infinity;
     for (const position of this.getTheFirstNthChoice(intMap, 2)) {
       intMap.set(position, 2);
-      let scores = this.minimax(intMap, nodeDepth, true);
+      let scores = this.minimax(intMap, nodeDepth, -Infinity, +Infinity, true);
       intMap.set(position, 0);
       if (scores > bestEval) {
         bestEval = scores;
@@ -479,6 +494,8 @@ myCanvas.addEventListener("click", (event) => {
   if (base.isWinInMap(row, colum, player)) {
     console.log(`player ${player} Win!`);
     isGameOver = true;
+    base.draw();
+    return;
   }
   playerStatus = !playerStatus;
   base.draw();
