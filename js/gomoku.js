@@ -10,8 +10,8 @@ const baseHeight = 15;
 
 const numberOfWin = 5;
 
-const nodeBreadth = 20;
-const nodeDepth = 2;
+const nodeBreadth = 200;
+const nodeDepth = 1;
 
 let playerStatus = false; // false means player_1 round (min player), true means player_2 round (max player)
 let isGameOver = false;
