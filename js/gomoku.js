@@ -10,18 +10,20 @@ const baseHeight = 15;
 
 const numberOfWin = 5;
 
-const nodeBreadth = 200;
-const nodeDepth = 1;
+const nodeDepth = 2;
+
+const defenseVariable = 1.2; // > 1 means defense first, < 1 means attack first
 
 let playerStatus = false; // false means player_1 round (min player), true means player_2 round (max player)
 let isGameOver = false;
 
 const comboScoresMap = new Map([
+  [0, 0],
   [1, 1],
-  [2, 10],
-  [3, 100],
-  [4, 1000],
-  [5, 1000000],
+  [2, 10 ** 2],
+  [3, 10 ** 4],
+  [4, 10 ** 6],
+  [5, Infinity],
 ]);
 
 class Block {
@@ -122,9 +124,193 @@ class Block {
   }
 }
 
+class PieceInfor {
+  constructor(intMap) {
+    this.pieceMap = new Map([
+      [1, []],
+      [2, []],
+    ]);
+    this.intMap = intMap;
+    this.n = 0;
+    this.meanX = 0;
+    this.meanY = 0;
+    this.scores = 0;
+  }
+  addPiece(x, y, player) {
+    // use math to speed up rather than calcute the ave. everytime
+    this.pieceMap.get(player).push(`${x},${y}`);
+    this.intMap.set(`${x},${y}`, player);
+    this.n++;
+    const deltaX = x - this.meanX;
+    const deltaY = y - this.meanY;
+    this.meanX += deltaX / this.n;
+    this.meanY += deltaY / this.n;
+  }
+  removePiece(x, y, player) {
+    // use math to speed up rather than calcute the ave. everytime
+    this.pieceMap.set(
+      player,
+      this.pieceMap.get(player).filter((position) => position != `${x},${y}`)
+    );
+    this.intMap.set(`${x},${y}`, 0);
+    if (this.n <= 0) return;
+    if (this.n === 1) {
+      this.n = 0;
+      this.meanX = 0;
+      this.meanY = 0;
+      this.sumDistSquared = 0;
+      return;
+    }
+    const oldMeanX = this.meanX;
+    const oldMeanY = this.meanY;
+    this.n -= 1;
+    const newMeanX = (this.n + 1) * oldMeanX - x;
+    const newMeanY = (this.n + 1) * oldMeanY - y;
+    this.meanX = this.n > 0 ? newMeanX / this.n : 0;
+    this.meanY = this.n > 0 ? newMeanY / this.n : 0;
+  }
+  compareWithPoint(x, y) {
+    // calcule the distance between the ave. position and the new piece
+    return (x - this.meanX) ** 2 + (y - this.meanY) ** 2;
+  }
+  isWinOfPosition(x, y, player) {
+    const directions = [
+      [0, 1], // horizontal
+      [1, 0], // vertical
+      [1, 1], // y = x
+      [1, -1], // y = -x
+    ];
+    for (const [dx, dy] of directions) {
+      let count = 1; // include the first piece
+      // same way
+      for (let i = 1; i < numberOfWin; i++) {
+        let position = `${x + i * dx},${y + i * dy}`;
+        if (this.intMap.get(position) && this.intMap.get(position) === player) {
+          count++;
+        } else {
+          break;
+        }
+      }
+      // opposite way
+      for (let i = 1; i < numberOfWin; i++) {
+        let position = `${x - i * dx},${y - i * dy}`;
+        if (this.intMap.get(position) && this.intMap.get(position) === player) {
+          count++;
+        } else {
+          break;
+        }
+      }
+      if (count >= numberOfWin) {
+        return true;
+      }
+    }
+    return false;
+  }
+  isWin() {
+    for (const position of this.pieceMap.get(1)) {
+      let [x, y] = position.split(",");
+      if (this.isWinOfPosition(x, y, 1)) {
+        return true;
+      }
+    }
+    for (const position of this.pieceMap.get(2)) {
+      let [x, y] = position.split(",");
+      if (this.isWinOfPosition(x, y, 2)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  getTheChoice() {
+    // 2. sort all choice according the distance first so that the alpha beta cutting can speed up the minimax alg.
+    let positionArray = [];
+    let distArray = [];
+    this.intMap.forEach((player, position) => {
+      if (player === 0) {
+        let [x, y] = position.split(",");
+        positionArray.push(position);
+        distArray.push(this.compareWithPoint(x, y));
+      }
+    });
+    // sort distArray
+    const sortedDistArray = distArray.map((value, index) => ({
+      value: value,
+      key: positionArray[index],
+    }));
+    sortedDistArray.sort((a, b) => a.value - b.value);
+    // sort by the index of distArray
+    return sortedDistArray.map((item) => item.key);
+  }
+  getScoresOfPosition(x, y, player) {
+    // 3. get the scores of this game node.
+    let scores = 0;
+    let otherPlayer = player === 1 ? 2 : 1;
+    const directions = [
+      [0, 1], // horizontal
+      [1, 0], // vertical
+      [1, 1], // y = x
+      [1, -1], // y = -x
+    ];
+    // 3.1. court how many piece connect between each other
+    for (const [dx, dy] of directions) {
+      let combo = 1; // include the first piece
+      // same way
+      for (let i = 1; i < numberOfWin; i++) {
+        let position = `${x + i * dx},${y + i * dy}`;
+        if (this.intMap.get(position) && this.intMap.get(position) === player) {
+          combo++;
+        } else if (
+          this.intMap.get(position) &&
+          this.intMap.get(position) === otherPlayer
+        ) {
+          combo = 0;
+          break;
+        } else {
+          break;
+        }
+      }
+      // 3.2. according to the number of connect, give scores of this game node.
+      scores += comboScoresMap.get(combo);
+      combo = 1;
+      // opposite way
+      for (let i = 1; i < numberOfWin; i++) {
+        let position = `${x - i * dx},${y - i * dy}`;
+        if (this.intMap.get(position) && this.intMap.get(position) === player) {
+          combo++;
+        } else if (
+          this.intMap.get(position) &&
+          this.intMap.get(position) === otherPlayer
+        ) {
+          combo = 0;
+          break;
+        } else {
+          break;
+        }
+      }
+      scores += comboScoresMap.get(combo);
+    }
+    return scores;
+  }
+  getScores() {
+    let scores = 0;
+    // player 1 (min player)
+    this.pieceMap.get(1).forEach((position) => {
+      let [x, y] = position.split(",");
+      scores -= this.getScoresOfPosition(x, y, 1) * defenseVariable;
+    });
+    // player 2 (max player)
+    this.pieceMap.get(2).forEach((position) => {
+      let [x, y] = position.split(",");
+      scores += this.getScoresOfPosition(x, y, 2);
+    });
+    return scores;
+  }
+}
+
 class Base {
   constructor() {
     this.blockMap = new Map([]); // ['x,y', new block(x, y)]
+    this.intMap = new Map([]); // ['x,y', i] i = {0, 1, 2}
     this.setUp();
     this.draw();
   }
@@ -135,8 +321,10 @@ class Base {
           `${x},${y}`,
           new Block(x * blockWidth, y * blockHeight)
         );
+        this.intMap.set(`${x},${y}`, 0);
       }
     }
+    this.pieceInfor = new PieceInfor(this.getIntMap());
   }
   draw() {
     this.blockMap.forEach((block) => block.draw());
@@ -145,6 +333,10 @@ class Base {
     let row = Math.floor(x / blockWidth);
     let colum = Math.floor(y / blockHeight);
     return [row, colum];
+  }
+  setBlock(x, y, player) {
+    this.getBlock(x, y).setPlayerStatus(player);
+    this.pieceInfor.addPiece(x, y, player);
   }
   getBlock(x, y) {
     return this.blockMap.get(`${x},${y}`);
@@ -187,242 +379,28 @@ class Base {
     }
     return false;
   }
-
-  // minimax part
   getIntMap() {
-    // 1. get the map infor
-    const intMap = new Map([]);
-    this.blockMap.forEach((block, position) =>
-      intMap.set(position, block.getPlayerStatus())
-    );
-    return intMap;
+    return this.intMap;
   }
-  getTheDeltaOfIntMap(intMap) {
-    // 2. decide which N areas should be included into the game tree.
-    // 2.1. get all piece of both player
-    // 2.2. use delta function to calcute the ave. different between the ave. position and each position of piece.
-    let x = 0;
-    let y = 0;
-    let positionArray = [];
-    intMap.forEach((player, position) => {
-      if (player !== 0) {
-        let [newX, newY] = position.split(",");
-        [newX, newY] = [Number(newX), Number(newY)];
-        if (positionArray.length === 0) {
-          x = newX;
-          y = newY;
-        } else {
-          let n = positionArray.length;
-          x = (newX + x * n) / (n + 1);
-          y = (newY + y * n) / (n + 1);
-        }
-        positionArray.push({ x: newX, y: newY });
-      }
-    });
-    return this.deltaFunction(x, y, positionArray);
-  }
-  deltaFunction(x, y, positionArray) {
-    let delta = 0;
-    positionArray.forEach((position) => {
-      delta += (x - position.x) ** 2 + (y - position.y) ** 2;
-    });
-    return delta;
-  }
-  isGameOverInIntMap(intMap) {
-    const directions = [
-      [0, 1], // horizontal
-      [1, 0], // vertical
-      [1, 1], // y = x
-      [1, -1], // y = -x
-    ];
-    for (const [position, player] of intMap) {
-      let [x, y] = position.split(",");
-      [x, y] = [Number(x), Number(y)];
-      if (player !== 0) {
-        for (const [dx, dy] of directions) {
-          let count = 1; // include the first piece
-          // same way
-          for (let i = 1; i < numberOfWin; i++) {
-            if (
-              intMap.get(`${x + i * dx},${y + i * dy}`) &&
-              intMap.get(`${x + i * dx},${y + i * dy}`) === player
-            ) {
-              count++;
-            } else {
-              break;
-            }
-          }
-          // opposite way
-          for (let i = 1; i < numberOfWin; i++) {
-            if (
-              intMap.get(`${x - i * dx},${y - i * dy}`) &&
-              intMap.get(`${x - i * dx},${y - i * dy}`) === player
-            ) {
-              count++;
-            } else {
-              break;
-            }
-          }
-          if (count >= numberOfWin) {
-            return true;
-          }
-        }
-        return false;
-      }
-    }
-  }
-  covertCombination(combination) {
-    // covert origin combination (legth >= numberOfWin) to noraml (legth === numberOfWin) combination
-    let combinationArray = []; // contain the normal combination
-    let i = 0;
-    while (i + numberOfWin <= combination.length) {
-      combinationArray.push(
-        combination.filter(
-          (value, index) => index >= i && index < i + numberOfWin
-        )
-      );
-      i++;
-    }
-    return combinationArray;
-  }
-  getCombinationOfPosition(x, y, intMap) {
-    // get the combination of this position
-    let combinationArray = [];
-    const directions = [
-      [0, 1], // horizontal
-      [1, 0], // vertical
-      [1, 1], // y = x
-      [1, -1], // y = -x
-    ];
-    for (const [dx, dy] of directions) {
-      let combination = [`${x},${y}`];
-      // same way
-      for (let i = 1; i < numberOfWin; i++) {
-        let position = `${x + i * dx},${y + i * dy}`;
-        if (intMap.get(position) >= 0) {
-          combination.push(position); // here use push so the position will be placed in order
-        } else {
-          break;
-        }
-      }
-      // opposite way
-      for (let i = 1; i < numberOfWin; i++) {
-        let position = `${x - i * dx},${y - i * dy}`;
-        if (intMap.get(position) >= 0) {
-          combination.unshift(position); // unshift use push so the position will be placed in order
-        } else {
-          break;
-        }
-      }
-      if (combination.length >= numberOfWin) {
-        combinationArray = [
-          ...combinationArray,
-          ...this.covertCombination(combination),
-        ];
-      }
-    }
-    return combinationArray;
-  }
-  getScoresOfCombination(combination, intMap, player) {
-    let combo = 0;
-    let otherplayer = player === 1 ? 2 : 1;
-    for (const position of combination) {
-      if (intMap.get(position) === player) {
-        combo++;
-      } else if (intMap.get(position) === otherplayer) {
-        return 0;
-      }
-    }
-    return comboScoresMap.get(combo);
-  }
-  getScoresOfIntMap(intMap) {
-    // 3. get the scores of this game node.
-    let scores = 0;
-    const scoresMap = new Map([
-      [1, []], // the array contains the combination set of player 1
-      [2, []],
-    ]);
-    // 3.1. get how many and where the piece of player are
-    // 3.2. court how many piece connect between each other
-    // 3.3. according to the number of connect, give scores of this game node.
-    for (const [position, player] of intMap) {
-      if (player != 0) {
-        let [x, y] = position.split(",");
-        [x, y] = [Number(x), Number(y)];
-        let combinationArray = this.getCombinationOfPosition(x, y, intMap);
-        combinationArray = combinationArray.filter(
-          // filter those overlap with those exist in scoresMap
-          (value) =>
-            !scoresMap.get(player).some(
-              (combination) =>
-                combination[0] === value[0] &&
-                combination[numberOfWin - 1] === value[numberOfWin - 1]
-              // because they have been placed in order so only consider the first and last one
-            )
-        );
-        scoresMap.set(player, [...scoresMap.get(player), ...combinationArray]);
-      }
-    }
-    scoresMap.forEach((combinationArray, player) => {
-      if (player === 1) {
-        for (const combination of combinationArray) {
-          scores -= this.getScoresOfCombination(combination, intMap, player);
-        }
-      } else {
-        for (const combination of combinationArray) {
-          scores += this.getScoresOfCombination(combination, intMap, player);
-        }
-      }
-    });
-    return scores;
-  }
-  getTheFirstNthChoice(intMap, player) {
-    let considerPosition = [];
-    let considerPositionDelta = [];
-    // get all the delta in each position
-    for (let x = 0; x < blockWidth; x++) {
-      for (let y = 0; y < blockHeight; y++) {
-        let position = `${x},${y}`;
-        if (intMap.get(position) === 0) {
-          intMap.set(position, player);
-          considerPosition.push(position);
-          considerPositionDelta.push(this.getTheDeltaOfIntMap(intMap));
-          intMap.set(position, 0);
-        }
-      }
-    }
-    const sortedConsiderPositionDelta = considerPositionDelta.map(
-      (value, index) => ({
-        value: value,
-        key: considerPosition[index],
-      })
-    );
-    // sort considerPositionDelta
-    sortedConsiderPositionDelta.sort((a, b) => a.value - b.value);
-    // sort by the index of considerPositionDelta and only get the first nodeBreadth element
-    return sortedConsiderPositionDelta
-      .map((item) => item.key)
-      .filter((value, index) => index >= 0 && index < nodeBreadth);
-  }
-  minimax(intMap, depth, alpha, beta, isMax) {
+  // minimax part
+  minimax(pieceInfor, depth, alpha, beta, isMax) {
     // isMax is true or false, false means player 1 (min player), true means player_2 (max player)
     // init alpha shound be -Infinity, init beta shound be +Infinity
-    if (depth === 0 || this.isGameOverInIntMap(intMap)) {
-      return this.getScoresOfIntMap(intMap);
+    if (depth === 0 || pieceInfor.isWin()) {
+      return pieceInfor.getScores();
     }
-
-    // 2.3. only include the first nodeBreadth areas into the game tree.
     if (isMax) {
       let maxEval = -Infinity;
       let player = 1;
-      for (const position of this.getTheFirstNthChoice(intMap, player)) {
-        intMap.set(position, player);
+      for (const position of pieceInfor.getTheChoice()) {
+        let [x, y] = position.split(",");
+        pieceInfor.addPiece(x, y, player);
         maxEval = Math.max(
           maxEval,
-          this.minimax(intMap, depth - 1, alpha, beta, false)
+          this.minimax(pieceInfor, depth - 1, alpha, beta, false)
         );
         alpha = Math.max(alpha, maxEval);
-        intMap.set(position, 0);
+        pieceInfor.removePiece(x, y, player);
         if (beta <= alpha) {
           break;
         }
@@ -431,14 +409,15 @@ class Base {
     } else {
       let minEval = +Infinity;
       let player = 2;
-      for (const position of this.getTheFirstNthChoice(intMap, player)) {
-        intMap.set(position, player);
+      for (const position of pieceInfor.getTheChoice()) {
+        let [x, y] = position.split(",");
+        pieceInfor.addPiece(x, y, player);
         minEval = Math.min(
           minEval,
-          this.minimax(intMap, depth - 1, alpha, beta, true)
+          this.minimax(pieceInfor, depth - 1, alpha, beta, true)
         );
         beta = Math.min(beta, minEval);
-        intMap.set(position, 0);
+        pieceInfor.removePiece(x, y, player);
         if (beta <= alpha) {
           break;
         }
@@ -446,14 +425,21 @@ class Base {
       return minEval;
     }
   }
-  findBestPosition(intMap) {
+  findBestPosition() {
     // only for PC is player 2
     let bestPosition = null;
     let bestEval = -Infinity;
-    for (const position of this.getTheFirstNthChoice(intMap, 2)) {
-      intMap.set(position, 2);
-      let scores = this.minimax(intMap, nodeDepth, -Infinity, +Infinity, true);
-      intMap.set(position, 0);
+    for (const position of this.pieceInfor.getTheChoice()) {
+      let [x, y] = position.split(",");
+      this.pieceInfor.addPiece(x, y, 2);
+      let scores = this.minimax(
+        this.pieceInfor,
+        nodeDepth,
+        -Infinity,
+        +Infinity,
+        true
+      );
+      this.pieceInfor.removePiece(x, y, 2);
       if (scores > bestEval) {
         bestEval = scores;
         bestPosition = position;
@@ -463,18 +449,19 @@ class Base {
   }
 }
 
-// scores system
+// findBestMove
 // 1. get the map infor
-// 2. decide which N areas should be included into the game tree.
-// 2.1. get all piece of both player
-// 2.2. use sparation function to calcute the ave. different between the ave. position and each position of piece.
-// 2.3. only include the first nodeBreadth areas into the game tree.
+// 2. sort all choice according the distance first so that the alpha beta cutting can speed up the minimax alg.
+// 2.2. calcute the distance between the ave. position of origin pieces and the position of new piece.
+// 2.3. according the distance to sort the choice position because the most close piece have higher chance to get hight scores
 // 3. get the scores of this game node.
-// 3.1. get how many and where the piece of player are
-// 3.2. court how many piece connect between each other
-// 3.3. according to the number of connect, give scores of this game node.
+// 3.1. court how many piece connect between each other
+// 3.2. according to the number of connect, give scores of this game node.
+// 4. use minimax alg with alpha beta cutting
+// 5. return the best move
 
 const base = new Base();
+let intMap = null;
 
 // click event
 myCanvas.addEventListener("click", (event) => {
@@ -489,8 +476,7 @@ myCanvas.addEventListener("click", (event) => {
   if (base.getBlock(row, colum).getPlayerStatus() !== 0) {
     return;
   }
-  base.getBlock(row, colum).setPlayerStatus(player);
-  const intMap = base.getIntMap();
+  base.setBlock(row, colum, player);
   if (base.isWinInMap(row, colum, player)) {
     console.log(`player ${player} Win!`);
     isGameOver = true;
@@ -501,9 +487,9 @@ myCanvas.addEventListener("click", (event) => {
   base.draw();
 
   // computer move
-  let [bestX, bestY] = base.findBestPosition(intMap).split(",");
+  let [bestX, bestY] = base.findBestPosition().split(",");
   [bestX, bestY] = [Number(bestX), Number(bestY)];
-  base.getBlock(bestX, bestY).setPlayerStatus(2);
+  base.setBlock(bestX, bestY, 2);
   if (base.isWinInMap(bestX, bestY, 2)) {
     console.log(`computer Win!`);
     isGameOver = true;
