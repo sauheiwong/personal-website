@@ -12,7 +12,7 @@ const numberOfWin = 5;
 
 const nodeDepth = 2;
 
-const defenseVariable = 1.2; // > 1 means defense first, < 1 means attack first
+const defenseVariable = 10; // > 1 means defense first, < 1 means attack first
 
 let playerStatus = false; // false means player_1 round (min player), true means player_2 round (max player)
 let isGameOver = false;
@@ -324,7 +324,7 @@ class Base {
         this.intMap.set(`${x},${y}`, 0);
       }
     }
-    this.pieceInfor = new PieceInfor(this.getIntMap());
+    this.pieceInfor = new PieceInfor(this.intMap);
   }
   draw() {
     this.blockMap.forEach((block) => block.draw());
@@ -378,9 +378,6 @@ class Base {
       }
     }
     return false;
-  }
-  getIntMap() {
-    return this.intMap;
   }
   // minimax part
   minimax(pieceInfor, depth, alpha, beta, isMax) {
@@ -461,7 +458,6 @@ class Base {
 // 5. return the best move
 
 const base = new Base();
-let intMap = null;
 
 // click event
 myCanvas.addEventListener("click", (event) => {
