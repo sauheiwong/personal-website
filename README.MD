@@ -2,15 +2,15 @@
 
 Hi everyone, welcome to my website!
 
-This is my first website while I am learning the basic HTML, CSS, JS and Bootstrap5.
+This is my first website, created while learning the basics of HTML, CSS, JavaScript, and Bootstrap 5.
 
-So it may not be a very beautiful and well design website.
+As it's my initial project, the website might not be the most visually stunning or perfectly designed.
 
-Hope I can improve in the coming future.
+I hope to improve it in the future.
 
 ---
 
-It has **four** different part:
+The website has **four** main sections:
 
 1. Home Page
 
@@ -26,41 +26,41 @@ It has **four** different part:
 
 ![home_page](/img/home_page.png "home page")
 
-In home page, a short of my history and a photo in Vancouver😎.
+On the home page, you'll find a brief overview of my background and a photo of me in Vancouver😎.
 
-Below that, there shows my programming skills.
+Below that, I showcase my programming skills.
 
 ## Habit
 
 ![habit_stable_diffusion](/img/habit_SD.png "habit page")
 
-In here, I used JS to create three different cards.
+Here, I used JavaScript to build three interactive cards.
 
-And user can click the arrow icon to change between three card and the images inside the card.
+Users can click the arrow icon to cycle through these cards and view the different images within them.
 
-I also create a background music on this page to share my favorite music❤️🎶.
+I've also added background music to this page to share some of my favorite tunes❤️🎶.
 
 ## Reading
 
 ![reading_page](/img/reading.png "reading page")
 
-For reading page, a few books have been shared.
+The reading page features a selection of books I enjoy.
 
-There are two styles to show the information.
+The information is presented in two different styles:
 
-1. Table Style (write in HTML table)
+1. Table Style (implemented using HTML tables)
 
-2. Card Style (write in CSS Flex style)
+2. Card Style (styled with CSS Flexbox)
 
-I have read other books in my life but those books are my favorite.
+While I've read many other books, these are some of my favorites.
 
-> It does not mean I don't want to write a review for all books😜
+> This doesn't mean I don't want to write reviews for all the books I've read😜.
 
 ## Game Center
 
 Welcome to my game center!
 
-There has **_five_** games you can try.
+There are **five** games you can try out:
 
 1. Circle Cross ⭕❌
 
@@ -78,33 +78,47 @@ There has **_five_** games you can try.
 
 ![game_center](/img/game_center.png "game center")
 
-When I was building those games, I learned a lot of JS skills.
+Building these games significantly enhanced my JavaScript skills.
 
-Breakout still has a bug even I asked AI to help me☠️.
+The Breakout game still has a bug, even after seeking help from AI☠️.
 
-**SO THERE IS A FEATURE**
+**IMPORTANT FEATURE!**
 
-**SO THERE IS A FEATURE**
+**IMPORTANT FEATURE!**
 
-**SO THERE IS A FEATURE**
+**IMPORTANT FEATURE!**
 
-This is very important so I need to say it thrice.
+This is a crucial point, so I'm emphasizing it thrice.
 
-_Maybe_ there has some bug which I didn't find them😜.
+_Perhaps_ there are some bugs that I haven't yet discovered😜.
 
-By the way, you can beat computer in my circle cross😉.
+By the way, you can actually beat the computer in my Circle Cross game😉.
 
-In Trivia, I use an API to get the question.
+For Trivia, I'm using an API to fetch the questions.
 
-In Gomoku, I am going to write a minimax algorithm for PVE but now there is only PVP mode.
+In Gomoku, there's a Player VS Environment (PVE) mode powered by the Minimax Algorithm with a depth of 3.
 
-If the algorithm has been completed, it will be my highlight🤩.
+The process of finding the best move involves three steps:
+
+1. Sorting all possible moves based on the distance between the average position of the remaining pieces and the potential move's location.
+
+   - A piece closer to the cluster of remaining pieces has a higher probability of being the optimal move.
+
+   - Therefore, the algorithm evaluates the closest moves first, saving considerable time due to alpha-beta pruning.
+
+   - Standard deviation wasn't used because its calculation would be more time-consuming.
+
+2. Evaluating the scores of potential moves according to the number of connected pieces they create.
+
+   - If an opponent blocks a chain of pieces, the chain's score becomes negative, prompting the algorithm to prioritize blocking rather than building its own chains.
+
+3. Utilizing the Minimax algorithm to determine the best move.
 
 ---
 
 ## Short Summary
 
-In this project, I used basic HTML, CSS, JS and Bootstrap5 icons to build my personal website. At the beginning, I planned to create a few games to learn the coding skill in JS. They are:
+In this project, I used basic HTML, CSS, JavaScript, and Bootstrap 5 icons to develop my personal website. My initial goal was to create a few games to improve my JavaScript coding skills. These games are:
 
 1. Circle Cross
 
@@ -116,7 +130,7 @@ In this project, I used basic HTML, CSS, JS and Bootstrap5 icons to build my per
 
 5. Gomoku
 
-Beside the games, I also improved the habit page with JS. Animation, background music have been added on that page.
+Beyond the games, I also enhanced the habit page using JavaScript, adding animations and background music.
 
 ---
 
@@ -124,38 +138,40 @@ Beside the games, I also improved the habit page with JS. Animation, background 
 
 1. Alert problems
 
-   - In the past, I used an alert function to tell something to the user. But the alert function will stop the whole DOM so some event can not run after an alert.
+   - Previously, I used the `alert` function to communicate with the user. However, the `alert` function would halt the entire DOM, preventing subsequent events from running.
 
-   - At the end, a pop-up card was inserted so the DOM can run while the user gets some message.
+   - Ultimately, I implemented a pop-up card instead, allowing the DOM to remain active while the user receives messages.
 
 2. Complex animation effects and event listener problems
 
-   - Since animation effects need some time to run, some functions have been started but those elements have not been created or shown on the screen.
+   - Since animation effects require some time to execute, certain functions were being initiated before the necessary elements were created or visible on the screen.
 
-   - Add a setTimeout to those functions that can run after those elements have been created.
+   - I resolved this by adding `setTimeout` to these functions, ensuring they run after the elements have been properly created.
 
-3. Unable to solve a bug
+3. Unresolved bug
 
-   - In the breakout, if the bag hits the board at the side, the bag may go inside the board.
+   - In the Breakout game, if the ball hits the side of the paddle, it can sometimes pass through it.
 
-   - The collision function needs to be improved in future. Like not using changing the movement direction method. Using change the speed of the ball during collision.
+   - The collision detection function needs further improvement in the future, perhaps by changing the ball's speed upon collision instead of just its direction.
 
 ---
 
-# Wins
+## Wins
 
-1. Fast response
+1. Fast response times
 
-   - In all the pages with JS, it does not need too much time to load.
+   - All pages with JavaScript load quickly.
 
-   - The responses are very fast. Users will not feel delayed while playing those games.
+   - The interactions are very responsive, ensuring users don't experience delays while playing the games.
 
-2. Learn more about APIs
+2. Expanded knowledge of APIs
 
-   - Two APIs are used: onYouTubeIframeAPIReady and openTriviaDatabase.
+   - I successfully integrated two APIs: `onYouTubeIframeAPIReady` and `openTriviaDatabase`.
 
-3. Figure out how to use Async function
+3. Understanding asynchronous functions
 
-   - Create HTML element and control animation effects in JS
+   - I learned how to create HTML elements and control animation effects using JavaScript.
 
-   - In the habit page, try to use only one container to show three different cards.
+   - On the habit page, I managed to display three different cards within a single container.
+
+4. Implementation of the Minimax algorithm in Gomoku.
