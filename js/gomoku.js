@@ -491,6 +491,31 @@ class Base {
 // 5. return the best move
 
 const base = new Base();
+const finshMessageText = document.querySelector("#finsh-message");
+const popUpContainer = document.getElementById("pop-up-container");
+
+const editFinshContainer = (result) => {
+  switch (result) {
+    case "reset":
+      popUpContainer.style.left = "-50%";
+      finshMessageText.innerHTML = "";
+      isGameOver = false;
+      base.setUp();
+      base.draw();
+      return;
+    case "player1":
+      finshMessageText.innerHTML = "You Win!🎉";
+      break;
+    case "player2":
+      finshMessageText.innerHTML = "(My) Computer Win!😉";
+      break;
+  }
+  popUpContainer.style.left = "37.5%";
+};
+
+document
+  .querySelector("#restart")
+  .addEventListener("click", () => editFinshContainer("reset"));
 
 // click event
 myCanvas.addEventListener("click", (event) => {
@@ -507,24 +532,27 @@ myCanvas.addEventListener("click", (event) => {
   }
   base.setBlock(row, colum, player);
   if (base.isWinInMap(row, colum, player)) {
-    console.log(`player ${player} Win!`);
     isGameOver = true;
     base.draw();
+    editFinshContainer(`player1`);
     return;
   }
   playerStatus = !playerStatus;
   base.draw();
-
+  document.querySelector("#loading-spinner").style.display = "block";
   // computer move
-  let [bestX, bestY] = base.findBestPosition().split(",");
-  [bestX, bestY] = [Number(bestX), Number(bestY)];
-  base.setBlock(bestX, bestY, 2);
-  if (base.isWinInMap(bestX, bestY, 2)) {
-    console.log(`computer Win!`);
-    isGameOver = true;
-  }
-  playerStatus = !playerStatus;
-  base.draw();
+  setTimeout(() => {
+    let [bestX, bestY] = base.findBestPosition().split(",");
+    [bestX, bestY] = [Number(bestX), Number(bestY)];
+    base.setBlock(bestX, bestY, 2);
+    if (base.isWinInMap(bestX, bestY, 2)) {
+      isGameOver = true;
+      editFinshContainer(`player2`);
+    }
+    playerStatus = !playerStatus;
+    base.draw();
+    document.querySelector("#loading-spinner").style.display = "none";
+  }, 10);
 });
 
 // point event
