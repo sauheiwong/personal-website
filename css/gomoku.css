@@ -3,6 +3,16 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
+  flex-direction: column;
+}
+
+.game_title {
+  font-size: xx-large;
+  background-color: var(--highlight-color);
+  display: inline-block;
+  padding: 10px 20px;
+  box-shadow: 5px 5px 4px var(--secondary-color);
+  margin-bottom: 50px;
 }
 
 #myCanvas {
@@ -10,4 +20,79 @@
   width: 750px;
   height: 750px;
   background-color: rgb(109, 109, 109);
+}
+
+.loader {
+  border: 8px solid #f3f3f3; /* Light grey */
+  border-top: 8px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 2s linear infinite;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: none;
+  z-index: 1000;
+}
+
+@keyframes spin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+#pop-up-container {
+  position: absolute;
+  width: 25%;
+  height: 20%;
+  left: -50%;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: left 1s ease-in-out;
+}
+
+.pop-up {
+  display: grid;
+  background-color: var(--secondary-color);
+  border-radius: 10px;
+  border: 5px solid var(--primary-color);
+  /* grid-area: "message" "ok"; */
+  grid-template-columns: 1fr;
+}
+
+#restart {
+  width: 50%;
+  height: 50%;
+  justify-self: center;
+  align-self: center;
+  border: 5px solid var(--primary-color);
+  border-radius: 10px;
+  background-color: var(--secondary-color);
+  display: flex;
+}
+
+.pop-up div {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pop-up div p {
+  text-align: center;
+}
+
+#restart:hover {
+  background-color: var(--highlight-color);
+}
+
+#finsh-message-container {
+  font-size: xx-large;
+  width: 100%;
+  height: 100%;
 }

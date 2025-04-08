@@ -7,6 +7,7 @@
     <link href="css/nav.css" rel="stylesheet" />
     <link href="css/body.css" rel="stylesheet" />
     <link rel="stylesheet" href="css/gomoku.css" />
+
     <script defer src="js/gomoku.js"></script>
   </head>
   <body>
@@ -21,7 +22,21 @@
       </nav>
     </div>
     <div class="container">
+      <div class="game_title">
+        Gomuku PVE (Minimax Algorithm with depth = 3)
+      </div>
       <canvas id="myCanvas" width="750" height="750"></canvas>
+      <div class="loader" id="loading-spinner"></div>
+      <div id="pop-up-container">
+        <div class="pop-up">
+          <div id="finsh-message-container">
+            <p id="finsh-message"></p>
+          </div>
+          <div id="restart" class="btn">
+            <p>Restart</p>
+          </div>
+        </div>
+      </div>
     </div>
   </body>
 </html>

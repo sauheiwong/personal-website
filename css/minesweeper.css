@@ -59,14 +59,12 @@
 }
 
 #myCanvas {
-  /* border: 1px solid var(--primary-color); */
   width: 800px;
   height: 800px;
   background-color: rgb(50, 50, 50);
 }
 
 #finsh-message-container {
-  /* grid-area: message; */
   font-size: xx-large;
   width: 100%;
   height: 100%;
@@ -102,7 +100,6 @@
   background-color: var(--secondary-color);
   border-radius: 10px;
   border: 5px solid var(--primary-color);
-  /* grid-area: "message" "ok"; */
   grid-template-columns: 1fr;
 }
 

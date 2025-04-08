@@ -12,18 +12,27 @@ const numberOfWin = 5;
 
 const nodeDepth = 2;
 
-const defenseVariable = 1.2; // > 1 means defense first, < 1 means attack first
+const defenseVariable = 10; // > 1 means defense first, < 1 means attack first
 
 let playerStatus = false; // false means player_1 round (min player), true means player_2 round (max player)
 let isGameOver = false;
 
-const comboScoresMap = new Map([
+const scoresWithoutBlockedMap = new Map([
   [0, 0],
-  [1, 1],
+  [1, 10 ** 1],
   [2, 10 ** 2],
-  [3, 10 ** 4],
-  [4, 10 ** 6],
-  [5, Infinity],
+  [3, 10 ** 3],
+  [4, 10 ** 4],
+  [5, 10 ** 10],
+]);
+
+const scoresWithBlockedMap = new Map([
+  // It needs to be negative value so the computer will defense first
+  [0, 0],
+  [1, -5],
+  [2, -50],
+  [3, -500],
+  [4, -5000],
 ]);
 
 class Block {
@@ -130,11 +139,16 @@ class PieceInfor {
       [1, []],
       [2, []],
     ]);
+    this.comboMap = new Map([
+      [1, []],
+      [2, []],
+    ]);
     this.intMap = intMap;
     this.n = 0;
     this.meanX = 0;
     this.meanY = 0;
     this.scores = 0;
+    this.winer = null;
   }
   addPiece(x, y, player) {
     // use math to speed up rather than calcute the ave. everytime
@@ -210,12 +224,14 @@ class PieceInfor {
     for (const position of this.pieceMap.get(1)) {
       let [x, y] = position.split(",");
       if (this.isWinOfPosition(x, y, 1)) {
+        this.winer = 1;
         return true;
       }
     }
     for (const position of this.pieceMap.get(2)) {
       let [x, y] = position.split(",");
       if (this.isWinOfPosition(x, y, 2)) {
+        this.winer = 2;
         return true;
       }
     }
@@ -245,6 +261,7 @@ class PieceInfor {
     // 3. get the scores of this game node.
     let scores = 0;
     let otherPlayer = player === 1 ? 2 : 1;
+    let courtedCombination = this.comboMap.get(player);
     const directions = [
       [0, 1], // horizontal
       [1, 0], // vertical
@@ -253,55 +270,71 @@ class PieceInfor {
     ];
     // 3.1. court how many piece connect between each other
     for (const [dx, dy] of directions) {
-      let combo = 1; // include the first piece
+      let combination = `(${x},${y})`;
+      let blocked = 0;
+      let combo = 1;
       // same way
       for (let i = 1; i < numberOfWin; i++) {
         let position = `${x + i * dx},${y + i * dy}`;
         if (this.intMap.get(position) && this.intMap.get(position) === player) {
+          combination = combination + `,(${position})`;
           combo++;
         } else if (
           this.intMap.get(position) &&
           this.intMap.get(position) === otherPlayer
         ) {
-          combo = 0;
+          blocked++;
           break;
         } else {
           break;
         }
       }
-      // 3.2. according to the number of connect, give scores of this game node.
-      scores += comboScoresMap.get(combo);
-      combo = 1;
       // opposite way
       for (let i = 1; i < numberOfWin; i++) {
         let position = `${x - i * dx},${y - i * dy}`;
         if (this.intMap.get(position) && this.intMap.get(position) === player) {
+          combination = `(${position}),` + combination;
           combo++;
         } else if (
           this.intMap.get(position) &&
           this.intMap.get(position) === otherPlayer
         ) {
-          combo = 0;
+          blocked++;
           break;
         } else {
           break;
         }
       }
-      scores += comboScoresMap.get(combo);
+      if (!courtedCombination.includes(combination)) {
+        courtedCombination.push(combination);
+        switch (blocked) {
+          case 2:
+            scores += 0;
+          case 1:
+            scores += scoresWithBlockedMap.get(combo);
+          case 0:
+            scores += scoresWithoutBlockedMap.get(combo);
+        }
+      }
     }
     return scores;
   }
   getScores() {
     let scores = 0;
+    this.comboMap = new Map([
+      [1, []],
+      [2, []],
+    ]);
     // player 1 (min player)
     this.pieceMap.get(1).forEach((position) => {
       let [x, y] = position.split(",");
-      scores -= this.getScoresOfPosition(x, y, 1) * defenseVariable;
+      scores -=
+        this.getScoresOfPosition(Number(x), Number(y), 1) * defenseVariable;
     });
     // player 2 (max player)
     this.pieceMap.get(2).forEach((position) => {
       let [x, y] = position.split(",");
-      scores += this.getScoresOfPosition(x, y, 2);
+      scores += this.getScoresOfPosition(Number(x), Number(y), 2);
     });
     return scores;
   }
@@ -324,7 +357,7 @@ class Base {
         this.intMap.set(`${x},${y}`, 0);
       }
     }
-    this.pieceInfor = new PieceInfor(this.getIntMap());
+    this.pieceInfor = new PieceInfor(this.intMap);
   }
   draw() {
     this.blockMap.forEach((block) => block.draw());
@@ -378,9 +411,6 @@ class Base {
       }
     }
     return false;
-  }
-  getIntMap() {
-    return this.intMap;
   }
   // minimax part
   minimax(pieceInfor, depth, alpha, beta, isMax) {
@@ -461,7 +491,31 @@ class Base {
 // 5. return the best move
 
 const base = new Base();
-let intMap = null;
+const finshMessageText = document.querySelector("#finsh-message");
+const popUpContainer = document.getElementById("pop-up-container");
+
+const editFinshContainer = (result) => {
+  switch (result) {
+    case "reset":
+      popUpContainer.style.left = "-50%";
+      finshMessageText.innerHTML = "";
+      isGameOver = false;
+      base.setUp();
+      base.draw();
+      return;
+    case "player1":
+      finshMessageText.innerHTML = "You Win!🎉";
+      break;
+    case "player2":
+      finshMessageText.innerHTML = "(My) Computer Win!😉";
+      break;
+  }
+  popUpContainer.style.left = "37.5%";
+};
+
+document
+  .querySelector("#restart")
+  .addEventListener("click", () => editFinshContainer("reset"));
 
 // click event
 myCanvas.addEventListener("click", (event) => {
@@ -478,24 +532,27 @@ myCanvas.addEventListener("click", (event) => {
   }
   base.setBlock(row, colum, player);
   if (base.isWinInMap(row, colum, player)) {
-    console.log(`player ${player} Win!`);
     isGameOver = true;
     base.draw();
+    editFinshContainer(`player1`);
     return;
   }
   playerStatus = !playerStatus;
   base.draw();
-
+  document.querySelector("#loading-spinner").style.display = "block";
   // computer move
-  let [bestX, bestY] = base.findBestPosition().split(",");
-  [bestX, bestY] = [Number(bestX), Number(bestY)];
-  base.setBlock(bestX, bestY, 2);
-  if (base.isWinInMap(bestX, bestY, 2)) {
-    console.log(`computer Win!`);
-    isGameOver = true;
-  }
-  playerStatus = !playerStatus;
-  base.draw();
+  setTimeout(() => {
+    let [bestX, bestY] = base.findBestPosition().split(",");
+    [bestX, bestY] = [Number(bestX), Number(bestY)];
+    base.setBlock(bestX, bestY, 2);
+    if (base.isWinInMap(bestX, bestY, 2)) {
+      isGameOver = true;
+      editFinshContainer(`player2`);
+    }
+    playerStatus = !playerStatus;
+    base.draw();
+    document.querySelector("#loading-spinner").style.display = "none";
+  }, 10);
 });
 
 // point event
