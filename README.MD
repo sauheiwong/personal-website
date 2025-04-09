@@ -90,11 +90,13 @@ The Breakout game still has a bug, even after seeking help from AI☠️.
 
 This is a crucial point, so I'm emphasizing it thrice.
 
-_Perhaps_ there are some bugs that I haven't yet discovered😜.
+> there are some bugs that I haven't yet discovered😜.
 
 By the way, you can actually beat the computer in my Circle Cross game😉.
 
 For Trivia, I'm using an API to fetch the questions.
+
+[Open Triva Database](https://opentdb.com/)
 
 In Gomoku, there's a Player VS Environment (PVE) mode powered by the Minimax Algorithm with a depth of 3.
 
@@ -175,3 +177,5 @@ Beyond the games, I also enhanced the habit page using JavaScript, adding animat
    - On the habit page, I managed to display three different cards within a single container.
 
 4. Implementation of the Minimax algorithm in Gomoku.
+
+> Edited by AI.
