@@ -456,7 +456,7 @@ const cardMap = new Map([
   [2, MusicCard],
 ]);
 
-let cardID = 2;
+let cardID = 0;
 cardMap.get(cardID).show();
 
 document.querySelector("#Next-habit").addEventListener("click", () => {
