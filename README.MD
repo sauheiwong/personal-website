@@ -160,7 +160,7 @@ Beyond the games, I also enhanced the habit page using JavaScript, adding animat
 
 ## Wins
 
-1. Fast response times
+1. Fast response times (except Gomoku)
 
    - All pages with JavaScript load quickly.
 
