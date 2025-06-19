@@ -10,7 +10,7 @@ const baseHeight = 15;
 
 const numberOfWin = 5;
 
-const nodeDepth = 2;
+const nodeDepth = 1; // total depth is nodeDepth + 1
 
 const defenseVariable = 10; // > 1 means defense first, < 1 means attack first
 
